@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:14
+    restart: always
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: internship_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  web:
+    build: .
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - .:/code
+    ports:
+      - "8001:8000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
