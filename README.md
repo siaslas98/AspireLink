@@ -12,6 +12,7 @@ This tool aims to reduce the stress of internship hunting by centralizing opport
 ```bash
 git clone https://github.com/siaslas98/internship-support-tool.git
 cd internship-support-tool
+git checkout -b test-structure origin/test-structure
 ```
 
 ### Setup Environment Variables
@@ -23,7 +24,9 @@ cd internship-support-tool
 ### Run the app using Docker
 
 - Make sure Docker is installed and running on your machine. Then run:
-  `docker compose up --build`
+  ```bash
+  docker compose up --build
+  ```
   - This will:
     - Start the FastAPI app on http://localhost:8000
     - Start a PostgreSQL database
@@ -32,12 +35,20 @@ cd internship-support-tool
 ### Initialize the database
 
 In another terminal:
-`docker exec -it internship-support-tool-web-1 python scripts/init_database.py`
+
+```bash
+docker exec -it internship-support-tool-web-1 python scripts/init_database.py
+```
 
 ### Open the app and test
-
-Visit http://localhost:8000 to access the homepage.
 
 Visit http://localhost:8000/docs for the Swagger UI.
 
 Use /register POST endpoint to test user registration.
+
+### Verify database entry
+
+- After registering a user, run:
+  `docker exec -it internship-support-tool-db-1 psql -U myuser -d internship_db`
+  - Then in PostgreSQL prompt:`
+` SELECT \* FROM users;`
