@@ -6,10 +6,22 @@
     <title>Register Account</title>
   </head>
   <body>
+    <h2>Register</h2>
     <form method="post" action="/register">
-      <input name="username" type="text" />
-      <input name="email" type="email" />
-      <input name="password" type="password" />
+      <label for="username">Username:</label><br />
+      <input id="username" name="username" type="text" required /><br /><br />
+
+      <label for="email">Email:</label><br />
+      <input id="email" name="email" type="email" required /><br /><br />
+
+      <label for="password">Password:</label><br />
+      <input
+        id="password"
+        name="password"
+        type="password"
+        required
+      /><br /><br />
+
       <button type="submit">Register</button>
     </form>
   </body>

@@ -1,13 +1,14 @@
-from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import os
 
-from app.api.routes import router
+from app.api import router
 
+# Initialize server
 app = FastAPI()
 
+# /app
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 app.mount(

@@ -1,0 +1,26 @@
+root
+    app/
+    ├── api.py              # All routes here (or split later if needed)
+    ├── auth.py             # Auth forms & utils combined
+    ├── db.py
+    ├── main.py
+    ├── models.py
+    ├── schemas.py
+    ├── templates/
+    │   ├── login.html
+    │   └── register.html
+    ├── static/
+    │   └── styles.css
+
+    - docs
+        - directory_struct.txt
+        - firststeps.txt
+    - scripts
+        - fetch_internships.py
+        - init_database.py
+    - .env 
+    - .gitignore
+    - Dockerfile
+    - README.md
+    - requirements.txt
+    - docker-compose.yml

@@ -28,7 +28,7 @@ git checkout -b test-structure origin/test-structure
   docker compose up --build
   ```
   - This will:
-    - Start the FastAPI app on http://localhost:8000
+    - Start the FastAPI app on http://localhost:8001
     - Start a PostgreSQL database
     - Mount code for live reloading
 
@@ -42,13 +42,15 @@ docker exec -it internship-support-tool-web-1 python scripts/init_database.py
 
 ### Open the app and test
 
-Visit http://localhost:8000/docs for the Swagger UI.
+Visit http://localhost:8001/docs for the Swagger UI.
 
 Use /register POST endpoint to test user registration.
 
 ### Verify database entry
 
 - After registering a user, run:
-  `docker exec -it internship-support-tool-db-1 psql -U myuser -d internship_db`
-  - Then in PostgreSQL prompt:`
-` SELECT \* FROM users;`
+  ```bash
+  docker exec -it internship-support-tool-db-1 psql -U myuser -d internship_db
+  ```
+  - Then in PostgreSQL prompt:
+    `SELECT * FROM users;`
