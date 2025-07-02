@@ -12,12 +12,11 @@ This tool aims to reduce the stress of internship hunting by centralizing opport
 ```bash
 git clone https://github.com/siaslas98/internship-support-tool.git
 cd internship-support-tool
-git checkout -b test-structure origin/test-structure
 ```
 
 ### Setup Environment Variables
 
-- Create a .env file in the root of the repository with this line:
+- Create a `.env` file in the root of the repository and add the following line:
   `DATABASE_URL=postgresql://myuser:mypassword@db:5432/internship_db`
   **Note: this runs with docker, no need to install PostgreSQL separately**
 
@@ -42,9 +41,9 @@ docker exec -it internship-support-tool-web-1 python scripts/init_database.py
 
 ### Open the app and test
 
-Visit http://localhost:8001/docs for the Swagger UI.
+Visit http://localhost:8001/register
 
-Use /register POST endpoint to test user registration.
+Register with test information
 
 ### Verify database entry
 
