@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.models import User
-from app.auth import hash_password
+from app.auth import hash_password, verify_password
 
 from pydantic import BaseModel, EmailStr
 
@@ -56,5 +56,33 @@ async def register_user(
 
 # User login
 @router.get("/login", response_class=HTMLResponse)
-async def login(request: Request):
+async def display_login(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
+
+
+# User's see the watchlist page after logging in
+@router.post("/login", response_class=HTMLResponse)
+async def handle_login(
+    request: Request,
+    username: str = Form(...),
+    password: str = Form(...),
+    db: Session = Depends(get_db),
+):
+    # implement authorization
+    # display the user's watchlist page
+    # allow users to add company names to watchlist
+
+    user = db.query(User).filter(User.username == username).first()
+
+    # Invalid login
+    if not user or not verify_password(password, user.password_hash):
+        return templates.TemplateResponse(
+            "login.html",
+            {"request": request, "msg": "Invalid username or password"},
+            status_code=400,
+        )
+
+    # Valid login
+    return templates.TemplateResponse(
+        "display_watchlist.html", {"request": request, "user": user}
+    )
