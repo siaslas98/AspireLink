@@ -1,37 +1,37 @@
 import requests
-from datetime import datetime, timezone
 from app.db import SessionLocal
 from app.models import Internship
 
-INTERNSHIP_FEED_URL = "https://raw.githubusercontent.com/vanshb03/Summer2026-Internships/dev/.github/scripts/listings.json"
+URL = "https://raw.githubusercontent.com/vanshb03/Summer2026-Internships/dev/.github/scripts/listings.json"
 
 
-def parse_unix(timestamp):
-    return datetime.fromtimestamp(timestamp, tz=timezone.utc)
+def fetch_json():
+    response = requests.get(URL)
+    response.raise_for_status()
+    return response.json()
 
 
-def fetch_and_save():
-    session = SessionLocal()
-
-    response = requests.get(INTERNSHIP_FEED_URL)
-    internships = response.json()
-
-    for item in internships:
+def update_internships(data):
+    db = SessionLocal()
+    for item in data:
         internship = Internship(
-            company=item.get("company_name"),
-            role=item.get("title"),
+            id=item["id"],
+            company=item["company_name"],
+            role=item["title"],
             location=", ".join(item.get("locations", [])),
-            remote=False,  # No explicit remote flag—set logic if needed
             link=item.get("url"),
-            date_posted=parse_unix(item.get("date_posted", item.get("date_updated"))),
+            date_posted=str(item.get("date_posted")),
             source=item.get("source"),
+            active=item.get("active"),
+            is_visible=item.get("is_visible"),
+            season=item.get("season"),
         )
-        session.add(internship)
+        db.merge(internship)  # update if exists, insert if new
 
-    session.commit()
-    print("✅ Internship data saved.")
+    db.commit()
+    db.close()
 
 
 if __name__ == "__main__":
-    print("Starting internship fetch...")
-    fetch_and_save()
+    data = fetch_json()
+    update_internships(data)

@@ -8,6 +8,9 @@
     />
   </head>
   <body>
+    {% if msg %}
+    <div style="color: red">{{ msg }}</div>
+    {% endif %}
     <h2>Login</h2>
     <form action="/login" method="post">
       <label for="username">Username:</label>

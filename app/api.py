@@ -33,6 +33,7 @@ async def register_user(
 ):
     existing = db.query(User).filter(User.email == email).first()
     if existing:
+        # Create a already_registered.html to return for existing
         return templates.TemplateResponse(
             "register.html",
             {"request": request, "msg": "Email already registered"},
@@ -68,7 +69,6 @@ async def handle_login(
     password: str = Form(...),
     db: Session = Depends(get_db),
 ):
-    # implement authorization
     # display the user's watchlist page
     # allow users to add company names to watchlist
 

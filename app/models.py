@@ -17,17 +17,23 @@ class User(Base):
 #     watchlist = relationship("WatchlistItem", back_populates="user")
 
 
-# class Internship(Base):
-#     __tablename__ = "internships"
+class Internship(Base):
+    __tablename__ = "internships"
 
-#     id = Column(Integer, primary_key=True)
-#     company = Column(String, nullable=False)
-#     role = Column(String, nullable=False)
-#     location = Column(String)
-#     remote = Column(Boolean, default=False)
-#     link = Column(String)
-#     date_posted = Column(DateTime)
-#     source = Column(String)
+    id = Column(String, primary_key=True)  # UUID from JSON
+    company = Column(String, nullable=False)
+    role = Column(String, nullable=False)  # rename from title → role
+    location = Column(String)  # JSON has a list — join into string
+    remote = Column(
+        Boolean, default=False
+    )  # You can infer this from location if needed
+    link = Column(String)  # from "url"
+    date_posted = Column(String)  # keep as string for now
+    source = Column(String)  # from JSON
+    is_visible = Column(Boolean)
+    active = Column(Boolean)
+    season = Column(String)
+
 
 #     watchlisted_by = relationship("WatchlistItem", back_populates="internship")
 
