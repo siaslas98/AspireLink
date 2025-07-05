@@ -25,5 +25,18 @@ services:
     depends_on:
       - db
 
+  internship_fetcher:
+    build: .
+    command: python scripts/fetch_internships.py
+    volumes:
+      - .:/code
+    working_dir: /code
+    environment:
+      PYTHONPATH: /code
+    env_file:
+      - .env
+    depends_on:
+      - db
+
 volumes:
   postgres_data:

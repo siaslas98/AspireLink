@@ -7,6 +7,8 @@
 
 This tool aims to reduce the stress of internship hunting by centralizing opportunity tracking, boosting accountability, and supporting students' long-term career growth.
 
+## Basic Setup
+
 ### Clone the repository
 
 ```bash
@@ -39,17 +41,9 @@ In another terminal:
 docker exec -it internship-support-tool-web-1 python scripts/init_database.py
 ```
 
-### Open the app and test
+## Some Important Commands:
 
-Visit http://localhost:8001/register
-
-Register with test information
-
-### Verify database entry
-
-- After registering a user, run:
+- Access the database
   ```bash
   docker exec -it internship-support-tool-db-1 psql -U myuser -d internship_db
   ```
-  - Then in PostgreSQL prompt:
-    `SELECT * FROM users;`

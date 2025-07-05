@@ -1,4 +1,5 @@
 import requests
+import time
 from app.db import SessionLocal
 from app.models import Internship
 
@@ -33,5 +34,14 @@ def update_internships(data):
 
 
 if __name__ == "__main__":
-    data = fetch_json()
-    update_internships(data)
+
+    while True:
+
+        try:
+            print("Fetching internships...", flush=True)
+            data = fetch_json()
+            update_internships(data)
+            print("Internship data updated.", flush=True)
+        except Exception as e:
+            print(f"Error: {e}", flush=True)
+        time.sleep(3600)  # Fetch internship data every hour
