@@ -1,0 +1,28 @@
+<!-- app/templates/dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='styles.css') }}"/>
+</head>
+<body>
+  <header>
+    <h1>Welcome, {{ user.username }}!</h1>
+    <nav>
+      <ul>
+        <li><a href="/internships">Internships</a></li>
+        <li><a href="/watchlist">Watchlist</a></li>
+        <li><a href="/checkins">Check-Ins</a></li>
+        <li><a href="/reminders">Reminders</a></li>
+        <li><a href="/logout">Logout</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <p>This is your dashboard overview. Populate with whatever widgets you like!</p>
+  </main>
+</body>
+</html>
