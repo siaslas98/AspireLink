@@ -4,17 +4,87 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Display Watchlist</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .watchlist-item {
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin-bottom: 10px;
+        background-color: #f9f9f9;
+      }
+      .company-name {
+        font-weight: bold;
+        font-size: 16px;
+      }
+      .remove-btn {
+        background-color: red;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+        margin-left: 10px;
+      }
+      input[type="text"] {
+        padding: 5px;
+        width: 200px;
+      }
+      input[type="submit"] {
+        padding: 5px 10px;
+        background-color: blue;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      .msg {
+        color: green;
+        margin-bottom: 10px;
+      }
+      .error {
+        color: red;
+      }
+    </style>
   </head>
   <body>
     <h2>Welcome, {{ user.username }}!</h2>
-    <form>
-      <label for="add_company">Add Company:</label><br />
+    
+    {% if msg %}
+      <div class="msg {% if 'success' not in msg.lower() %}error{% endif %}">
+        {{ msg }}
+      </div>
+    {% endif %}
+    
+    <form method="post" action="/add_to_watchlist">
+      <input type="hidden" name="user_id" value="{{ user.id }}">
+      <label for="company_name">Add Company:</label><br />
       <input
-        id="add_company"
-        name="add_company"
+        id="company_name"
+        name="company_name"
         type="text"
+        placeholder="Company name"
         required
-      /><br /><br />
+      />
+      <input type="submit" value="Add" /><br /><br />
     </form>
+
+    <h3>Your Watchlist</h3>
+    
+    {% if watchlist_items %}
+      {% for item in watchlist_items %}
+        <div class="watchlist-item">
+          <span class="company-name">{{ item.company_name }}</span>
+          <small>Added: {{ item.added_at.strftime('%Y-%m-%d') }}</small>
+          <form method="post" action="/remove_from_watchlist" style="display: inline;">
+            <input type="hidden" name="user_id" value="{{ user.id }}">
+            <input type="hidden" name="item_id" value="{{ item.id }}">
+            <button type="submit" class="remove-btn">Remove</button>
+          </form>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p>No companies in your watchlist yet.</p>
+    {% endif %}
   </body>
 </html>
