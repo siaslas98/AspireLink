@@ -1,7 +1,10 @@
+"""Please, Please, Please. Do your best to keep this file organized"""
+
 import os
 from fastapi import APIRouter, Request, Form, Depends
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
+
 from sqlalchemy.orm import Session
 from pydantic import EmailStr
 
@@ -15,21 +18,24 @@ router = APIRouter()
 
 # ─── DASHBOARD ────────────────────────────────────────────────────────────────
 
+
 @router.get("/dashboard", response_class=HTMLResponse)
-async def dashboard(request: Request, user=Depends(get_current_user)):
+async def dashboard(request: Request, user: User = Depends(get_current_user)):
     """
     Renders the main dashboard page for logged-in users.
     """
     return templates.TemplateResponse(
-        "dashboard.html",
-        {"request": request, "user": user},
+        "dashboard.html", {"request": request, "user": user}
     )
 
+
 # ─── AUTH ─────────────────────────────────────────────────────────────────────
+
 
 @router.get("/register", response_class=HTMLResponse)
 async def show_register_form(request: Request):
     return templates.TemplateResponse("register.html", {"request": request})
+
 
 @router.post("/register", response_class=HTMLResponse)
 async def register_user(
@@ -54,9 +60,11 @@ async def register_user(
         "login.html", {"request": request, "msg": "Registration successful"}
     )
 
+
 @router.get("/login", response_class=HTMLResponse)
 async def display_login(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
+
 
 @router.post("/login")
 async def handle_login(
@@ -76,7 +84,9 @@ async def handle_login(
     response.set_cookie(key="user_id", value=str(user.id), httponly=True)
     return response
 
+
 # ─── WATCHLIST ────────────────────────────────────────────────────────────────
+
 
 @router.get("/watchlist", response_class=HTMLResponse)
 async def display_watchlist(
@@ -84,13 +94,14 @@ async def display_watchlist(
     db: Session = Depends(get_db),
     user=Depends(get_current_user),
 ):
-    watchlist_items = db.query(WatchlistItem).filter(
-        WatchlistItem.user_id == user.id
-    ).all()
+    watchlist_items = (
+        db.query(WatchlistItem).filter(WatchlistItem.user_id == user.id).all()
+    )
     return templates.TemplateResponse(
         "display_watchlist.html",
         {"request": request, "user": user, "watchlist_items": watchlist_items},
     )
+
 
 @router.post("/add_to_watchlist", response_class=HTMLResponse)
 async def add_to_watchlist(
@@ -138,6 +149,7 @@ async def add_to_watchlist(
             "msg": f"Successfully added {company_name} to your watchlist!",
         },
     )
+
 
 @router.post("/remove_from_watchlist", response_class=HTMLResponse)
 async def remove_from_watchlist(
