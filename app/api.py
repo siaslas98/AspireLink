@@ -13,11 +13,23 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 router = APIRouter()
 
+# ─── DASHBOARD ────────────────────────────────────────────────────────────────
+
+@router.get("/dashboard", response_class=HTMLResponse)
+async def dashboard(request: Request, user=Depends(get_current_user)):
+    """
+    Renders the main dashboard page for logged-in users.
+    """
+    return templates.TemplateResponse(
+        "dashboard.html",
+        {"request": request, "user": user},
+    )
+
+# ─── AUTH ─────────────────────────────────────────────────────────────────────
 
 @router.get("/register", response_class=HTMLResponse)
 async def show_register_form(request: Request):
     return templates.TemplateResponse("register.html", {"request": request})
-
 
 @router.post("/register", response_class=HTMLResponse)
 async def register_user(
@@ -38,16 +50,13 @@ async def register_user(
     new_user = User(username=username, email=email, password_hash=hashed_pw)
     db.add(new_user)
     db.commit()
-    # After successful registration, show login form with a success message
     return templates.TemplateResponse(
         "login.html", {"request": request, "msg": "Registration successful"}
     )
 
-
 @router.get("/login", response_class=HTMLResponse)
 async def display_login(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
-
 
 @router.post("/login")
 async def handle_login(
@@ -67,6 +76,7 @@ async def handle_login(
     response.set_cookie(key="user_id", value=str(user.id), httponly=True)
     return response
 
+# ─── WATCHLIST ────────────────────────────────────────────────────────────────
 
 @router.get("/watchlist", response_class=HTMLResponse)
 async def display_watchlist(
@@ -82,7 +92,6 @@ async def display_watchlist(
         {"request": request, "user": user, "watchlist_items": watchlist_items},
     )
 
-
 @router.post("/add_to_watchlist", response_class=HTMLResponse)
 async def add_to_watchlist(
     request: Request,
@@ -97,7 +106,6 @@ async def add_to_watchlist(
             {"request": request, "msg": "User not found"},
             status_code=400,
         )
-
     existing_item = (
         db.query(WatchlistItem)
         .filter(
@@ -117,7 +125,6 @@ async def add_to_watchlist(
                 "msg": f"{company_name} is already in your watchlist",
             },
         )
-
     new_item = WatchlistItem(user_id=user_id, company_name=company_name.strip())
     db.add(new_item)
     db.commit()
@@ -131,7 +138,6 @@ async def add_to_watchlist(
             "msg": f"Successfully added {company_name} to your watchlist!",
         },
     )
-
 
 @router.post("/remove_from_watchlist", response_class=HTMLResponse)
 async def remove_from_watchlist(
