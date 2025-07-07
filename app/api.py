@@ -5,11 +5,12 @@ from fastapi import APIRouter, Request, Form, Depends
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
 
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from pydantic import EmailStr
 
 from app.db import get_db
-from app.models import User, WatchlistItem
+from app.models import User, WatchlistItem, Internship
 from app.auth import hash_password, verify_password, get_current_user
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -175,5 +176,40 @@ async def remove_from_watchlist(
             "user": user,
             "watchlist_items": items,
             "msg": "Successfully removed item",
+        },
+    )
+
+
+# ─── User Internships ────────────────────────────────────────────────────────────────
+@router.get("/internships", response_class=HTMLResponse)
+async def show_matching_internships(
+    request: Request,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    # Get user's watchlist company names
+    company_names = (
+        db.query(WatchlistItem.company_name)
+        .filter(WatchlistItem.user_id == user.id)
+        .all()
+    )
+
+    names = [c[0] for c in company_names]
+
+    conditions = [Internship.company.ilike(name) for name in names]
+
+    matched_internships = (
+        db.query(Internship)
+        .filter(or_(*conditions))
+        .order_by(Internship.date_posted.desc())
+        .all()
+    )
+
+    return templates.TemplateResponse(
+        "internship.html",
+        {
+            "request": request,
+            "user": user,
+            "internships": matched_internships,
         },
     )

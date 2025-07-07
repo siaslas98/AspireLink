@@ -14,23 +14,24 @@ def fetch_json():
 
 def update_internships(data):
     db = SessionLocal()
-    for item in data:
-        internship = Internship(
-            id=item["id"],
-            company=item["company_name"],
-            role=item["title"],
-            location=", ".join(item.get("locations", [])),
-            link=item.get("url"),
-            date_posted=str(item.get("date_posted")),
-            source=item.get("source"),
-            active=item.get("active"),
-            is_visible=item.get("is_visible"),
-            season=item.get("season"),
-        )
-        db.merge(internship)  # update if exists, insert if new
-
-    db.commit()
-    db.close()
+    try:
+        for item in data:
+            internship = Internship(
+                id=item["id"],
+                company=item["company_name"],
+                role=item["title"],
+                location=", ".join(item.get("locations", [])),
+                link=item.get("url"),
+                date_posted=str(item.get("date_posted")),
+                source=item.get("source"),
+                active=item.get("active"),
+                is_visible=item.get("is_visible"),
+                season=item.get("season"),
+            )
+            db.merge(internship)  # update if exists, insert if new
+        db.commit()
+    finally:
+        db.close()
 
 
 if __name__ == "__main__":

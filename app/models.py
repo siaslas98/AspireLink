@@ -1,4 +1,12 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    Boolean,
+    DateTime,
+    ForeignKey,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import relationship
 from datetime import datetime, timezone
 from app.db import Base
@@ -36,9 +44,15 @@ class Internship(Base):
 # Watchlist table for companies users want to track
 class WatchlistItem(Base):
     __tablename__ = "watchlist_items"
+    __table_args__ = (
+        UniqueConstraint(
+            "user_id", "company_name", name="uix_user_company"
+        ),  # Database side checks to ensure user doesn't add a company more than once.
+    )
 
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     company_name = Column(String, nullable=False)
     added_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
     user = relationship("User", back_populates="watchlist")

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h2>Matching Internships</h2>
+    {% if internships %} {% for i in internships %}
+    <div>
+      <h3>{{ i.company }} — {{ i.role }}</h3>
+      <p>{{ i.location }} | {{ i.season }} | Posted: {{ i.date_posted }}</p>
+      <a href="{{ i.link }}" target="_blank">View Internship</a>
+    </div>
+    {% endfor %} {% else %}
+    <p>No internships found matching your watchlist yet.</p>
+    {% endif %}
+  </body>
+</html>
