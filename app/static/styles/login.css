@@ -1,118 +1,136 @@
-* {
-  box-sizing: border-box;
+/* static/styles/login.css */
+
+/* Base page background and text */
+body {
+  background-color: #1F1F1F;  /* lighter dark gray */
+  color: #D3F3EE;
+  font-family: 'Poppins', sans-serif;
   margin: 0;
   padding: 0;
 }
-html {
-  background-color: #0b0a07;
-}
 
-body {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  font-family: "Poppins", sans-serif;
-}
-
-.error_msg {
-  text-align: center;
-  margin-top: 5px;
-  font-weight: bold;
-  font-size: 1rem;
-  color: #fcd3de;
-}
-
-/* main nav bar */
+/* Main nav styling */
 .main-nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 2em;
-  background: #0b0a07;
-  color: #d3f3ee;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid #D3F3EE50;
 }
-
+.main-nav span {
+  font-weight: 600;
+  font-size: 1.25rem;
+  color: #D3F3EE;
+}
 .main-nav ul {
   list-style: none;
   display: flex;
-  gap: 1em;
-  font-size: 1.5rem;
-  margin-right: 2em;
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0;
 }
-
 .main-nav a {
-  position: relative;
   text-decoration: none;
-  color: #d3f3ee;
+  color: #D3F3EE;
+  font-weight: 500;
 }
-
 .main-nav a:hover {
   text-decoration: underline;
-  text-underline-offset: 8px;
-  text-decoration-thickness: 5px;
 }
-/* end main nav bar */
 
-/* login */
+/* Content container (for forms and pages) */
 .login-container {
+  max-width: 400px;
+  margin: 3rem auto;
+  padding: 2rem;
+  border: 1px solid #D3F3EE80;
+  border-radius: 8px;
+  background-color: #1F1F1F;
+}
+
+/* Headings */
+h1, h2, h3 {
+  color: #D3F3EE;
+  margin-bottom: 1rem;
+}
+
+/* Forms */
+.login-form, form {
   display: flex;
   flex-direction: column;
-  width: 600px;
-  margin: 10em auto 0 auto; /* top margin + horizontal centering */
-  padding: 5rem;
-  color: #d3f3ee;
-  border: 2px solid #d0f4ea;
-  border-radius: 2px;
+  gap: 1rem;
 }
-
-.login-container h2 {
-  margin-bottom: 1rem;
-  text-align: center;
-}
-
 .form-group {
   display: flex;
-  align-items: center;
-  margin-bottom: 1em;
+  flex-direction: column;
 }
-
 .form-group label {
-  width: 100px; /* ensure consistent alignment */
-  margin-right: 1.5em;
-  text-align: right;
-  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+  color: #D3F3EE;
 }
-
 .form-group input {
-  flex: 1;
-  max-width: 250px;
-  padding: 0.2em;
-  font-size: 1rem;
-  font-family: "Poppins", sans-serif;
-  background-color: #ffffffda;
+  padding: 0.5rem;
+  border: 1px solid #D3F3EE60;
+  border-radius: 4px;
+  background: #2A2A2A;
+  color: #D3F3EE;
+}
+.form-group input::placeholder {
+  color: #D3F3EE80;
 }
 
-input:focus {
-  outline: none;
-  border: 2px solid #d0f4ea;
-  box-shadow: 0 0 4px #d0f4ea;
-}
-
-.login-form button {
-  display: block;
-  margin: 1.2em auto 0 auto;
-  padding: 0.7em 1.5em;
-  font-size: 1rem;
-  font-family: "Poppins", sans-serif;
-  background-color: #d0f4ea;
-  color: #0b0a07;
+/* Buttons */
+button, input[type="submit"] {
+  padding: 0.75rem 1rem;
   border: none;
   border-radius: 4px;
+  background-color: #D3F3EE;
+  color: #1F1F1F;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+}
+button:hover, input[type="submit"]:hover {
+  background-color: #C0E8DD;
 }
 
-.login-form button:hover {
-  background-color: #aee6d8;
+/* Watchlist items, tables, lists, etc. */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
 }
-/* end login */
+table, th, td {
+  border: 1px solid #D3F3EE60;
+}
+th, td {
+  padding: 0.5rem;
+  text-align: left;
+  color: #D3F3EE;
+}
+ul {
+  list-style: disc inside;
+  margin: 0.5rem 0 1rem 0;
+  padding: 0;
+}
+li {
+  margin-bottom: 0.5rem;
+}
+
+/* Messages */
+.msg {
+  background-color: #1F1F1F60;
+  color: #D3F3EE;
+  padding: 0.5rem;
+  border-left: 4px solid #D3F3EE;
+  margin-bottom: 1rem;
+}
+.error, .error_msg {
+  color: #FCD3DE;
+  border-left-color: #FCD3DE;
+}
+
+/* Utility */
+small {
+  color: #D3F3EE80;
+  font-size: 0.85rem;
+}

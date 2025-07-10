@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>My Reminders</h2>
+
+  {% if reminders %}
+    <ul>
+      {% for r in reminders %}
+        <li>
+          {{ r.text }} <small>due {{ r.due_date.strftime("%Y-%m-%d") }}</small>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No reminders set.</p>
+  {% endif %}
+{% endblock %}

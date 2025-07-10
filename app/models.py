@@ -19,15 +19,19 @@ class User(Base):
     username = Column(String, nullable=False, unique=True)
     email = Column(String, nullable=False, unique=True)
     password_hash = Column(String, nullable=False)
-    created_at = Column(DateTime, default=datetime.now(timezone.utc))
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
+    # relationships
     watchlist = relationship("WatchlistItem", back_populates="user")
+    application_logs = relationship(
+        "ApplicationLog", back_populates="user", cascade="all, delete-orphan"
+    )
+    checkins = relationship("CheckIn", back_populates="user", cascade="all, delete-orphan")
+    reminders = relationship("Reminder", back_populates="user", cascade="all, delete-orphan")
 
 
-# Internships obtained from scraping JSON
 class Internship(Base):
     __tablename__ = "internships"
-
     id = Column(String, primary_key=True)
     company = Column(String, nullable=False)
     role = Column(String, nullable=False)
@@ -41,13 +45,10 @@ class Internship(Base):
     season = Column(String)
 
 
-# Watchlist table for companies users want to track
 class WatchlistItem(Base):
     __tablename__ = "watchlist_items"
     __table_args__ = (
-        UniqueConstraint(
-            "user_id", "company_name", name="uix_user_company"
-        ),  # Database side checks to ensure user doesn't add a company more than once.
+        UniqueConstraint("user_id", "company_name", name="uix_user_company"),
     )
 
     id = Column(Integer, primary_key=True)
@@ -56,3 +57,38 @@ class WatchlistItem(Base):
     added_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     user = relationship("User", back_populates="watchlist")
+
+
+class ApplicationLog(Base):
+    __tablename__ = "application_logs"
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    company = Column(String, nullable=False)
+    role = Column(String, nullable=False)
+    status = Column(String, nullable=False)
+    date_applied = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+    user = relationship("User", back_populates="application_logs")
+
+
+class CheckIn(Base):
+    __tablename__ = "checkins"
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    note = Column(String, nullable=True)
+    date = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+    user = relationship("User", back_populates="checkins")
+
+
+class Reminder(Base):
+    __tablename__ = "reminders"
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    text = Column(String, nullable=False)
+    due_date = Column(DateTime, nullable=False)
+
+    user = relationship("User", back_populates="reminders")

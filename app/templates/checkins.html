@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>My Check-Ins</h2>
+
+  {% if checkins %}
+    <ul>
+      {% for c in checkins %}
+        <li>
+          {{ c.note or "—" }} <small>{{ c.date.strftime("%Y-%m-%d %H:%M") }}</small>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No check-ins recorded yet.</p>
+  {% endif %}
+{% endblock %}
