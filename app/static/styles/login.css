@@ -1,0 +1,118 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+html {
+  background-color: #0b0a07;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  font-family: "Poppins", sans-serif;
+}
+
+.error_msg {
+  text-align: center;
+  margin-top: 5px;
+  font-weight: bold;
+  font-size: 1rem;
+  color: #fcd3de;
+}
+
+/* main nav bar */
+.main-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2em;
+  background: #0b0a07;
+  color: #d3f3ee;
+}
+
+.main-nav ul {
+  list-style: none;
+  display: flex;
+  gap: 1em;
+  font-size: 1.5rem;
+  margin-right: 2em;
+}
+
+.main-nav a {
+  position: relative;
+  text-decoration: none;
+  color: #d3f3ee;
+}
+
+.main-nav a:hover {
+  text-decoration: underline;
+  text-underline-offset: 8px;
+  text-decoration-thickness: 5px;
+}
+/* end main nav bar */
+
+/* login */
+.login-container {
+  display: flex;
+  flex-direction: column;
+  width: 600px;
+  margin: 10em auto 0 auto; /* top margin + horizontal centering */
+  padding: 5rem;
+  color: #d3f3ee;
+  border: 2px solid #d0f4ea;
+  border-radius: 2px;
+}
+
+.login-container h2 {
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.form-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1em;
+}
+
+.form-group label {
+  width: 100px; /* ensure consistent alignment */
+  margin-right: 1.5em;
+  text-align: right;
+  font-size: 1.2rem;
+}
+
+.form-group input {
+  flex: 1;
+  max-width: 250px;
+  padding: 0.2em;
+  font-size: 1rem;
+  font-family: "Poppins", sans-serif;
+  background-color: #ffffffda;
+}
+
+input:focus {
+  outline: none;
+  border: 2px solid #d0f4ea;
+  box-shadow: 0 0 4px #d0f4ea;
+}
+
+.login-form button {
+  display: block;
+  margin: 1.2em auto 0 auto;
+  padding: 0.7em 1.5em;
+  font-size: 1rem;
+  font-family: "Poppins", sans-serif;
+  background-color: #d0f4ea;
+  color: #0b0a07;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.login-form button:hover {
+  background-color: #aee6d8;
+}
+/* end login */

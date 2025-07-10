@@ -78,7 +78,7 @@ async def handle_login(
     if not user or not verify_password(password, user.password_hash):
         return templates.TemplateResponse(
             "login.html",
-            {"request": request, "msg": "Invalid username or password"},
+            {"request": request, "msg": "Invalid username or password!"},
             status_code=400,
         )
     response = RedirectResponse(url="/dashboard", status_code=302)
