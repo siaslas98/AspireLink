@@ -159,14 +159,13 @@ small {
 
 /* for stylzing internship listings */
 .data-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1rem;
+  display: block;
   list-style: none;
   padding: 0;
 }
 
 .data-list li {
+  margin-bottom: 1rem;
   padding: 1rem;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -183,4 +182,30 @@ small {
   line-height: 2; /* adjust as needed */
   color: #d3f3eea0;
   text-align: center;
+}
+
+.watchlist-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  gap: 1rem;
+  flex-wrap: wrap; /* ensures it wraps cleanly on small screens */
+}
+
+.company-name {
+  font-weight: 600;
+}
+
+.remove-btn {
+  background-color: #fcd3de;
+  color: #1f1f1f;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
 }

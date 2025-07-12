@@ -228,10 +228,7 @@ async def remove_from_watchlist(
         msg = "Could not find that item."
 
     items = db.query(WatchlistItem).filter(WatchlistItem.user_id == user.id).all()
-    return templates.TemplateResponse(
-        "display_watchlist.html",
-        {"request": request, "user": user, "watchlist_items": items, "msg": msg},
-    )
+    return RedirectResponse(url="/watchlist", status_code=303)
 
 
 # ─── INTERNSHIPS ───────────────────────────────────────────────────────────────
@@ -247,13 +244,17 @@ async def show_matching_internships(
         .all()
     )
     names = [c[0] for c in company_names]
-    conditions = [Internship.company.ilike(name) for name in names]
-    matched_internships = (
-        db.query(Internship)
-        .filter(or_(*conditions))
-        .order_by(Internship.date_posted.desc())
-        .all()
-    )
+    if not names:
+        matched_internships = []
+
+    else:
+        conditions = [Internship.company.ilike(name) for name in names]
+        matched_internships = (
+            db.query(Internship)
+            .filter(or_(*conditions))
+            .order_by(Internship.date_posted.desc())
+            .all()
+        )
     return templates.TemplateResponse(
         "internship.html",
         {"request": request, "user": user, "internships": matched_internships},
