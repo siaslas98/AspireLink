@@ -1,0 +1,42 @@
+name: CI with Docker
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  docker-ci:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: myuser
+          POSTGRES_PASSWORD: mypassword
+          POSTGRES_DB: internship_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready" --health-interval=10s
+          --health-timeout=5s --health-retries=5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Compose
+        run: docker-compose up -d --build
+
+      - name: Wait for DB
+        run: |
+          until docker exec internship-support-tool-web-1 pg_isready -h db -U myuser; do
+            echo "Waiting for db..."; sleep 2;
+          done
+
+      - name: Init DB
+        run: docker exec internship-support-tool-web-1 python scripts/init_database.py
+
+      - name: Run tests
+        run: docker exec internship-support-tool-web-1 pytest

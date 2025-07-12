@@ -203,13 +203,8 @@ async def add_to_watchlist(
         new_item = WatchlistItem(user_id=user.id, company_name=company_name.strip())
         db.add(new_item)
         db.commit()
-        msg = f"Added {company_name} to your watchlist"
 
-    items = db.query(WatchlistItem).filter(WatchlistItem.user_id == user.id).all()
-    return templates.TemplateResponse(
-        "display_watchlist.html",
-        {"request": request, "user": user, "watchlist_items": items, "msg": msg},
-    )
+    return RedirectResponse(url="/watchlist", status_code=303)
 
 
 @router.post("/remove_from_watchlist", response_class=HTMLResponse)

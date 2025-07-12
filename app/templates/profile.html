@@ -1,55 +1,58 @@
-{% extends "base.html" %}
+{% extends "base.html" %} {% block content %}
+<h2>My Profile</h2>
 
-{% block content %}
-  <h2>My Profile</h2>
+<!-- Watchlist -->
+<section>
+  <h3>Watchlist ({{ stats.watchlist_count }})</h3>
+  {% if watchlist %}
+  <ul>
+    {% for item in watchlist %}
+    <li>
+      {{ item.company_name }}
+      <small>added on {{ item.added_at.strftime("%Y-%m-%d") }}</small>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>You haven’t added any companies yet.</p>
+  {% endif %}
+</section>
 
-  <!-- Watchlist -->
-  <section>
-    <h3>Watchlist ({{ stats.watchlist_count }})</h3>
-    {% if watchlist %}
-      <ul>
-        {% for item in watchlist %}
-          <li>
-            {{ item.company_name }} 
-            <small>added on {{ item.added_at.strftime("%Y-%m-%d") }}</small>
-          </li>
-        {% endfor %}
-      </ul>
-    {% else %}
-      <p>You haven’t added any companies yet.</p>
-    {% endif %}
-  </section>
+<!-- Application Logs -->
+<section style="margin-top: 2rem">
+  <h3>Application Logs ({{ stats.application_count }})</h3>
+  {% if application_logs %}
+  <table>
+    <thead>
+      <tr>
+        <th>Company</th>
+        <th>Role</th>
+        <th>Status</th>
+        <th>Date Applied</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for log in application_logs %}
+      <tr>
+        <td>{{ log.company }}</td>
+        <td>{{ log.role }}</td>
+        <td>{{ log.status }}</td>
+        <td>{{ log.date_applied.strftime("%Y-%m-%d") }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>No applications logged yet.</p>
+  {% endif %}
+</section>
 
-  <!-- Application Logs -->
-  <section style="margin-top:2rem;">
-    <h3>Application Logs ({{ stats.application_count }})</h3>
-    {% if application_logs %}
-      <table>
-        <thead>
-          <tr><th>Company</th><th>Role</th><th>Status</th><th>Date Applied</th></tr>
-        </thead>
-        <tbody>
-          {% for log in application_logs %}
-            <tr>
-              <td>{{ log.company }}</td>
-              <td>{{ log.role }}</td>
-              <td>{{ log.status }}</td>
-              <td>{{ log.date_applied.strftime("%Y-%m-%d") }}</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    {% else %}
-      <p>No applications logged yet.</p>
-    {% endif %}
-  </section>
-
-  <!-- Quick Stats -->
-  <section style="margin-top:2rem;">
-    <h3>Quick Stats</h3>
-    <ul>
-      <li>Total in Watchlist: {{ stats.watchlist_count }}</li>
-      <li>Total Applications: {{ stats.application_count }}</li>
-    </ul>
-  </section>
+<!-- Quick Stats -->
+<section style="margin-top: 2rem">
+  <h3>Quick Stats</h3>
+  <ul>
+    <li>Total in Watchlist: {{ stats.watchlist_count }}</li>
+    <li>Total Applications: {{ stats.application_count }}</li>
+  </ul>
+</section>
 {% endblock %}

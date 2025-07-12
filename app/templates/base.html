@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{{ title or 'Internship-Support-Tool' }}</title>
+    <title>Internship-Support-Tool</title>
     <!-- point to your real CSS path under static/styles -->
     <link
       rel="stylesheet"
@@ -37,8 +37,9 @@
         {% endif %}
       </ul>
     </nav>
-    <!-- content container -->
+    <!-- form container -->
     <div class="form-container">{% block form %}{% endblock %}</div>
+    <!-- content container -->
     <div class="content-container">{% block content %}{% endblock %}</div>
   </body>
 </html>

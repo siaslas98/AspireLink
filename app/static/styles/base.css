@@ -88,7 +88,7 @@ h3 {
   display: none;
 }
 
-.login-form,
+.user-form,
 form {
   display: flex;
   flex-direction: column;
@@ -149,6 +149,7 @@ input[type="submit"]:hover {
 .error_msg {
   color: #fcd3de;
   border-left-color: #fcd3de;
+  margin-top: 1.5rem;
 }
 
 /* Utility */
@@ -176,14 +177,6 @@ small {
   color: inherit;
 }
 
-.poem {
-  margin-top: 2rem;
-  font-style: italic;
-  line-height: 2; /* adjust as needed */
-  color: #d3f3eea0;
-  text-align: center;
-}
-
 .watchlist-item {
   display: flex;
   justify-content: space-between;
@@ -208,4 +201,61 @@ small {
   border-radius: 4px;
   font-weight: 600;
   cursor: pointer;
+}
+
+section + section {
+  margin-top: 2rem;
+}
+
+ul {
+  list-style: disc inside;
+  margin: 1rem 0;
+  padding-left: 1rem;
+}
+
+ul li {
+  margin-bottom: 0.5rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  font-size: 0.95rem;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+thead {
+  background-color: #2a2a2a;
+}
+
+th,
+td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #3a3a3a;
+}
+
+tbody tr:hover {
+  background-color: #2e2e2e;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+/* General list cleanup */
+section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+section li {
+  margin-bottom: 0.75rem;
+  padding: 0.5rem 1rem;
+  background-color: #2a2a2a;
+  border-radius: 6px;
+  color: #d3f3ee;
 }
