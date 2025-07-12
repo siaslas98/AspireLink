@@ -1,43 +1,46 @@
-{% extends "base.html" %}
-{% block content %}
-  <h2>Welcome, {{ user.username }}!</h2>
+{% extends "base.html" %} {% block form %}
+<h2>Welcome, {{ user.username }}!</h2>
 
-  {% if msg %}
-    <div class="msg {% if 'removed' in msg.lower() or 'added' in msg.lower() %}success{% else %}error{% endif %}">
-      {{ msg }}
-    </div>
-  {% endif %}
+{% if msg %}
+<div
+  class="msg {% if 'removed' in msg.lower() or 'added' in msg.lower() %}success{% else %}error{% endif %}"
+>
+  {{ msg }}
+</div>
+{% endif %}
 
-  <form method="post" action="{{ request.url_for('add_to_watchlist') }}">
-    <label for="company_name">Add Company:</label><br />
+<form
+  class="login-form"
+  method="post"
+  action="{{ request.url_for('add_to_watchlist') }}"
+>
+  <div class="form-group">
+    <label for="company_name">Add Company:</label>
     <input
       id="company_name"
       name="company_name"
       type="text"
-      placeholder="Company name"
+      placeholder="company name"
       required
     />
     <button type="submit">Add</button><br /><br />
+  </div>
+</form>
+
+<h3>Your Watchlist</h3>
+{% if watchlist_items %} {% for item in watchlist_items %}
+<div class="watchlist-item">
+  <span class="company-name">{{ item.company_name }}</span>
+  <small>Added: {{ item.added_at.strftime('%Y-%m-%d') }}</small>
+  <form
+    method="post"
+    action="{{ request.url_for('remove_from_watchlist') }}"
+    style="display: inline"
+  >
+    <input type="hidden" name="item_id" value="{{ item.id }}" />
+    <button type="submit" class="remove-btn">Remove</button>
   </form>
-
-  <h3>Your Watchlist</h3>
-
-  {% if watchlist_items %}
-    {% for item in watchlist_items %}
-      <div class="watchlist-item">
-        <span class="company-name">{{ item.company_name }}</span>
-        <small>Added: {{ item.added_at.strftime('%Y-%m-%d') }}</small>
-        <form
-          method="post"
-          action="{{ request.url_for('remove_from_watchlist') }}"
-          style="display: inline;"
-        >
-          <input type="hidden" name="item_id" value="{{ item.id }}" />
-          <button type="submit" class="remove-btn">Remove</button>
-        </form>
-      </div>
-    {% endfor %}
-  {% else %}
-    <p>No companies in your watchlist yet.</p>
-  {% endif %}
-{% endblock %}
+</div>
+{% endfor %} {% else %}
+<p>No companies in your watchlist yet.</p>
+{% endif %} {% endblock %}

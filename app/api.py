@@ -16,11 +16,20 @@ from app.models import (
     CheckIn,
     Reminder,
 )
+
 from app.auth import hash_password, verify_password, get_current_user
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "app", "templates"))
 router = APIRouter()
+
+
+# ___ APP Home Page ____________________________________________________________
+@router.get("/", response_class=HTMLResponse)
+def home(
+    request: Request,
+):
+    return templates.TemplateResponse("index.html", {"request": request})
 
 
 # ─── DASHBOARD ────────────────────────────────────────────────────────────────
@@ -78,11 +87,7 @@ async def profile(
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    watchlist = (
-        db.query(WatchlistItem)
-        .filter(WatchlistItem.user_id == user.id)
-        .all()
-    )
+    watchlist = db.query(WatchlistItem).filter(WatchlistItem.user_id == user.id).all()
     application_logs = (
         db.query(ApplicationLog)
         .filter(ApplicationLog.user_id == user.id)
@@ -173,11 +178,7 @@ async def display_watchlist(
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    items = (
-        db.query(WatchlistItem)
-        .filter(WatchlistItem.user_id == user.id)
-        .all()
-    )
+    items = db.query(WatchlistItem).filter(WatchlistItem.user_id == user.id).all()
     return templates.TemplateResponse(
         "display_watchlist.html",
         {"request": request, "user": user, "watchlist_items": items},
@@ -204,11 +205,7 @@ async def add_to_watchlist(
         db.commit()
         msg = f"Added {company_name} to your watchlist"
 
-    items = (
-        db.query(WatchlistItem)
-        .filter(WatchlistItem.user_id == user.id)
-        .all()
-    )
+    items = db.query(WatchlistItem).filter(WatchlistItem.user_id == user.id).all()
     return templates.TemplateResponse(
         "display_watchlist.html",
         {"request": request, "user": user, "watchlist_items": items, "msg": msg},
@@ -230,11 +227,7 @@ async def remove_from_watchlist(
     else:
         msg = "Could not find that item."
 
-    items = (
-        db.query(WatchlistItem)
-        .filter(WatchlistItem.user_id == user.id)
-        .all()
-    )
+    items = db.query(WatchlistItem).filter(WatchlistItem.user_id == user.id).all()
     return templates.TemplateResponse(
         "display_watchlist.html",
         {"request": request, "user": user, "watchlist_items": items, "msg": msg},

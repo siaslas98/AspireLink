@@ -1,0 +1,186 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* General */
+body {
+  background-color: #1f1f1f;
+  color: #d3f3ee;
+  font-family: "Poppins", sans-serif;
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3 {
+  color: #d3f3ee;
+  margin-bottom: 1rem;
+}
+
+/* nav bar styling */
+.main-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid #d3f3ee50;
+  margin-top: 1.5rem;
+}
+.main-nav h1 {
+  font-weight: 600;
+}
+.main-nav ul {
+  list-style: none;
+  display: flex;
+  gap: 2rem;
+  margin-right: 1rem;
+}
+.main-nav a {
+  position: relative;
+  text-decoration: none;
+  color: #d3f3ee;
+  font-size: 1.3rem;
+}
+.main-nav a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -7px;
+  width: 0%;
+  height: 3px;
+  background-color: #d3f3ee;
+  transition: width 0.4s ease;
+}
+.main-nav a:hover::after {
+  width: 100%;
+}
+
+/* content styling */
+.content-container {
+  width: 1000px;
+  margin: 3rem auto;
+  padding: 2rem;
+  border: 1px solid #d3f3ee80;
+  border-radius: 8px;
+  background-color: #1f1f1f;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.content-container:empty {
+  display: none;
+}
+
+/* forms */
+.form-container {
+  max-width: 400px;
+  margin: 3rem auto;
+  padding: 2rem;
+  border: 1px solid #d3f3ee80;
+  border-radius: 8px;
+  background-color: #1f1f1f;
+  max-height: 80vh;
+}
+
+.form-container:empty {
+  display: none;
+}
+
+.login-form,
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 0.8rem;
+}
+.form-group label {
+  margin-bottom: 0.5rem;
+  color: #d3f3ee;
+}
+.form-group input {
+  padding: 0.5rem;
+  border: 1px solid #d3f3ee60;
+  border-radius: 4px;
+  background: #2a2a2a;
+  color: #d3f3ee;
+  font-size: 1.2rem;
+}
+.form-group input::placeholder {
+  color: #d3f3ee80;
+}
+input:focus {
+  outline: none;
+  box-shadow: none;
+  border: 1px solid #d3f3ee; /* optional custom focus style */
+}
+
+/* Buttons */
+button,
+input[type="submit"] {
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 4px;
+  background-color: #d3f3ee;
+  color: #1f1f1f;
+  font-weight: 600;
+  cursor: pointer;
+}
+button:hover,
+input[type="submit"]:hover {
+  background-color: #c0e8dd;
+}
+
+/* Messages */
+.msg {
+  background-color: #1f1f1f60;
+  color: #d3f3ee;
+  padding: 0.5rem;
+  border-left: 4px solid #d3f3ee;
+  margin-bottom: 1rem;
+}
+.error,
+.error_msg {
+  color: #fcd3de;
+  border-left-color: #fcd3de;
+}
+
+/* Utility */
+small {
+  color: #d3f3ee80;
+  font-size: 0.85rem;
+}
+
+/* for stylzing internship listings */
+.data-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  list-style: none;
+  padding: 0;
+}
+
+.data-list li {
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.data-list li a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.poem {
+  margin-top: 2rem;
+  font-style: italic;
+  line-height: 2; /* adjust as needed */
+  color: #d3f3eea0;
+  text-align: center;
+}

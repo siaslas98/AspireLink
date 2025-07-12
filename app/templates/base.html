@@ -1,35 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>{{ title or 'Internship-Support-Tool' }}</title>
-  <!-- point to your real CSS path under static/styles -->
-  <link rel="stylesheet" href="{{ url_for('static', path='styles/login.css') }}" />
-</head>
-<body>
-  <!-- main nav -->
-  <nav class="main-nav">
-    <span>Internship-Support-Tool</span>
-    <ul>
-      {% if user %}
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ title or 'Internship-Support-Tool' }}</title>
+    <!-- point to your real CSS path under static/styles -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', path='styles/base.css') }}"
+    />
+  </head>
+  <body>
+    <!-- main nav -->
+    <nav class="main-nav">
+      <h1>Internship-Support-Tool</h1>
+      <ul>
+        {% if user %}
         <li><a href="{{ request.url_for('dashboard') }}">Dashboard</a></li>
-        <li><a href="{{ request.url_for('show_matching_internships') }}">Internships</a></li>
-        <li><a href="{{ request.url_for('display_watchlist') }}">Watchlist</a></li>
+        <li>
+          <a href="{{ request.url_for('show_matching_internships') }}"
+            >Internships</a
+          >
+        </li>
+        <li>
+          <a href="{{ request.url_for('display_watchlist') }}">Watchlist</a>
+        </li>
         <li><a href="{{ request.url_for('profile') }}">Profile</a></li>
         <li><a href="{{ request.url_for('checkins') }}">Check-Ins</a></li>
         <li><a href="{{ request.url_for('reminders') }}">Reminders</a></li>
         <li><a href="{{ request.url_for('logout') }}">Logout</a></li>
-      {% else %}
-        <li><a href="{{ request.url_for('show_register_form') }}">Register</a></li>
+        {% else %}
+        <li>
+          <a href="{{ request.url_for('show_register_form') }}">Register</a>
+        </li>
         <li><a href="{{ request.url_for('display_login') }}">Login</a></li>
-      {% endif %}
-    </ul>
-  </nav>
-
-  <!-- content container -->
-  <div class="login-container">
-    {% block content %}{% endblock %}
-  </div>
-</body>
+        {% endif %}
+      </ul>
+    </nav>
+    <!-- content container -->
+    <div class="form-container">{% block form %}{% endblock %}</div>
+    <div class="content-container">{% block content %}{% endblock %}</div>
+  </body>
 </html>

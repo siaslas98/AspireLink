@@ -1,20 +1,19 @@
-{% extends "base.html" %}
+{% extends "base.html" %} {% block content %}
+<h2>Matching Internships</h2>
 
-{% block content %}
-  <h2>Matching Internships</h2>
-
-  {% if internships %}
-    <ul>
-      {% for i in internships %}
-        <li>
-          <a href="{{ i.link }}" target="_blank">
-            {{ i.company }} — {{ i.role }}
-          </a>
-          <div><small>{{ i.location }} | {{ i.season }} | Posted: {{ i.date_posted }}</small></div>
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p>No internships found matching your watchlist yet.</p>
-  {% endif %}
-{% endblock %}
+{% if internships %}
+<ul class="data-list">
+  {% for i in internships %}
+  <li>
+    <a href="{{ i.link }}" target="_blank"> {{ i.company }} — {{ i.role }} </a>
+    <div>
+      <small
+        >{{ i.location }} | {{ i.season }} | Posted: {{ i.date_posted }}</small
+      >
+    </div>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>No internships found matching your watchlist yet.</p>
+{% endif %} {% endblock %}
