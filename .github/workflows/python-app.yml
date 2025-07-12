@@ -34,10 +34,16 @@ jobs:
 
       - name: Wait for db to be ready
         run: |
-          until docker exec internship-support-tool-db-1 sh -c 'pg_isready -U myuser'; do
-            echo "Waiting for db...";
-            sleep 2;
+          echo "Waiting for Postgres to be ready..."
+          for i in {1..10}; do
+            docker exec internship-support-tool-db-1 pg_isready -U myuser && break
+            echo "Not ready yet... ($i)"
+            sleep 2
           done
+
+      - name: Show db logs on failure
+        if: failure()
+        run: docker logs internship-support-tool-db-1 || true
 
       - name: Init DB
         run: docker exec internship-support-tool-web-1 python scripts/init_database.py
