@@ -27,4 +27,4 @@ jobs:
           done
 
       - name: Run tests
-        run: docker exec internship-support-tool-web-1 pytest
+        run: docker exec internship-support-tool-web-1 pytest tests
