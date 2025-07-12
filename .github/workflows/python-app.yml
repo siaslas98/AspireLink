@@ -32,10 +32,11 @@ jobs:
       - name: Set up Docker Compose
         run: docker compose up -d --build
 
-      - name: Wait for DB
+      - name: Wait for db to be ready
         run: |
-          until docker exec internship-support-tool-web-1 pg_isready -h db -U myuser; do
-            echo "Waiting for db..."; sleep 2;
+          until docker exec internship-support-tool-db-1 sh -c 'pg_isready -U myuser'; do
+            echo "Waiting for db...";
+            sleep 2;
           done
 
       - name: Init DB
