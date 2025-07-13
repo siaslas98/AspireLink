@@ -1,7 +1,8 @@
 import os
 from fastapi import APIRouter, Request, Form, Depends
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
+from datetime import datetime, timedelta
 
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
@@ -42,6 +43,50 @@ async def dashboard(
     return templates.TemplateResponse(
         "dashboard.html", {"request": request, "user": user}
     )
+
+
+# ─── NOTIFICATIONS ────────────────────────────────────────────────────────
+@router.get("/api/notifications")
+async def get_notifications(
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    company_names = (
+        db.query(WatchlistItem.company_name)
+        .filter(WatchlistItem.user_id == user.id)
+        .all()
+    )
+    names = [c[0] for c in company_names]
+    
+    if not names:
+        return {"new_internships": []}
+    
+    # Check for internships posted in the last 24 hours
+    yesterday = datetime.now() - timedelta(days=1)
+    conditions = [Internship.company.ilike(name) for name in names]
+    
+    new_internships = (
+        db.query(Internship)
+        .filter(or_(*conditions))
+        .filter(Internship.active == True)
+        .order_by(Internship.date_posted.desc())
+        .limit(10)
+        .all()
+    )
+    
+    # Format response
+    notifications = []
+    for internship in new_internships:
+        notifications.append({
+            "id": internship.id,
+            "company": internship.company,
+            "role": internship.role,
+            "location": internship.location,
+            "date_posted": internship.date_posted,
+            "link": internship.link
+        })
+    
+    return {"new_internships": notifications}
 
 
 # ─── CHECK-INS ────────────────────────────────────────────────────────────────
