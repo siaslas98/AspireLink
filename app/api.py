@@ -299,3 +299,69 @@ async def show_matching_internships(
         "internship.html",
         {"request": request, "user": user, "internships": matched_internships},
     )
+
+ # ─── APPLICATION LOGGING ──────────────────────────────────────────────────────
+@router.post("/apply_internship")
+async def apply_internship(
+    request: Request,
+    internship_id: str = Form(...),
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    try:
+        # Debug: Print the received internship_id
+        print(f"Received internship_id: '{internship_id}'")
+        
+        # Check if internship_id is empty or None
+        if not internship_id or internship_id.strip() == "":
+            print("Error: internship_id is empty")
+            return RedirectResponse(url="/internships?error=empty_id", status_code=303)
+        
+        # Convert internship_id to integer
+        internship_id_int = int(internship_id.strip())
+        print(f"Converted internship_id to int: {internship_id_int}")
+        
+        # Get the internship details
+        internship = db.query(Internship).filter(Internship.id == internship_id_int).first()
+        
+        if not internship:
+            print(f"Error: No internship found with ID {internship_id_int}")
+            return RedirectResponse(url="/internships?error=not_found", status_code=303)
+        
+        print(f"Found internship: {internship.company} - {internship.role}")
+        
+        # Check if user already applied to this specific internship
+        existing_log = db.query(ApplicationLog).filter(
+            ApplicationLog.user_id == user.id,
+            ApplicationLog.company == internship.company,
+            ApplicationLog.role == internship.role
+        ).first()
+        
+        if existing_log:
+            print(f"User {user.id} already applied to {internship.company} - {internship.role}")
+            return RedirectResponse(url="/internships?error=already_applied", status_code=303)
+        
+        # Create application log with current date
+        new_log = ApplicationLog(
+            user_id=user.id,
+            company=internship.company,
+            role=internship.role,
+            status="Applied",
+            date_applied=datetime.now()
+        )
+        
+        db.add(new_log)
+        db.commit()
+        db.refresh(new_log)  # Refresh to get the updated object
+        
+        print(f"Successfully logged application for user {user.id}")
+        return RedirectResponse(url="/internships?success=applied", status_code=303)
+        
+    except ValueError as e:
+        print(f"Invalid internship ID - ValueError: {e}")
+        print(f"Problematic internship_id value: '{internship_id}'")
+        return RedirectResponse(url="/internships?error=invalid_id", status_code=303)
+    except Exception as e:
+        print(f"Error logging application: {e}")
+        db.rollback()
+        return RedirectResponse(url="/internships?error=database_error", status_code=303)
