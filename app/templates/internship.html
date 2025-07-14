@@ -1,69 +1,129 @@
-{% extends "base.html" %} 
-{% block content %}
+{% extends "base.html" %} {% block content %}
 <h2>Matching Internships</h2>
 
 {% if request.query_params.get('success') == 'applied' %}
-    <div style="color: green; margin: 10px 0; padding: 10px; background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 4px;">
-        ✓ Application logged successfully!
-    </div>
-{% endif %}
-
-{% if request.query_params.get('error') == 'already_applied' %}
-    <div style="color: #721c24; margin: 10px 0; padding: 10px; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px;">
-        ⚠ You already applied to this internship!
-    </div>
-{% endif %}
-
-{% if request.query_params.get('error') == 'not_found' %}
-    <div style="color: #721c24; margin: 10px 0; padding: 10px; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px;">
-        ⚠ Internship not found!
-    </div>
-{% endif %}
-
-{% if request.query_params.get('error') == 'invalid_id' %}
-    <div style="color: #721c24; margin: 10px 0; padding: 10px; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px;">
-        ⚠ Invalid internship ID!
-    </div>
-{% endif %}
-
-{% if request.query_params.get('error') == 'empty_id' %}
-    <div style="color: #721c24; margin: 10px 0; padding: 10px; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px;">
-        ⚠ Empty internship ID!
-    </div>
-{% endif %}
-
-{% if request.query_params.get('error') == 'database_error' %}
-    <div style="color: #721c24; margin: 10px 0; padding: 10px; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px;">
-        ⚠ Database error occurred. Please try again.
-    </div>
-{% endif %}
-
-{% if internships %}
+<div
+  style="
+    color: green;
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    border-radius: 4px;
+  "
+>
+  ✓ Application logged successfully!
+</div>
+{% endif %} {% if request.query_params.get('error') == 'already_applied' %}
+<div
+  style="
+    color: #721c24;
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+  "
+>
+  ⚠ You already applied to this internship!
+</div>
+{% endif %} {% if request.query_params.get('error') == 'not_found' %}
+<div
+  style="
+    color: #721c24;
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+  "
+>
+  ⚠ Internship not found!
+</div>
+{% endif %} {% if request.query_params.get('error') == 'invalid_id' %}
+<div
+  style="
+    color: #721c24;
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+  "
+>
+  ⚠ Invalid internship ID!
+</div>
+{% endif %} {% if request.query_params.get('error') == 'empty_id' %}
+<div
+  style="
+    color: #721c24;
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+  "
+>
+  ⚠ Empty internship ID!
+</div>
+{% endif %} {% if request.query_params.get('error') == 'database_error' %}
+<div
+  style="
+    color: #721c24;
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+  "
+>
+  ⚠ Database error occurred. Please try again.
+</div>
+{% endif %} {% if internships %}
 <ul class="data-list">
   {% for i in internships %}
   <li>
     <a href="{{ i.link }}" target="_blank"> {{ i.company }} — {{ i.role }} </a>
     <div>
-      <small>{{ i.location }} | {{ i.season }} | Posted: {{ i.date_posted }}</small>
+      <small
+        >{{ i.location }} | {{ i.season }} | Posted: {{ i.date_posted }}</small
+      >
     </div>
-    <div style="font-size: 10px; color: #666;">Debug: ID = {{ i.id }}</div>
-    <form method="post" action="/apply_internship" style="margin-top: 8px;" onsubmit="return confirmApply('{{ i.company }}', '{{ i.role }}');">
-        <input type="hidden" name="internship_id" value="{{ i.id }}">
-        <button type="submit" style="background-color: #007bff; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
-            Apply & Log
-        </button>
+    <form
+      method="post"
+      action="/apply_internship"
+      style="margin-top: 8px"
+      onsubmit="return confirmApply('{{ i.company }}', '{{ i.role }}');"
+    >
+      <input type="hidden" name="internship_id" value="{{ i.id }}" />
+      <button
+        type="submit"
+        style="
+          background-color: #007bff;
+          color: white;
+          padding: 6px 12px;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 12px;
+        "
+      >
+        Apply & Log
+      </button>
     </form>
   </li>
   {% endfor %}
 </ul>
 {% else %}
 <p>No internships found matching your watchlist yet.</p>
-{% endif %} 
+{% endif %}
 
 <script>
-function confirmApply(company, role) {
-    return confirm(`Are you sure you want to apply to ${company} for the ${role} position?`);
-}
+  function confirmApply(company, role) {
+    return confirm(
+      `Are you sure you want to apply to ${company} for the ${role} position?`
+    );
+  }
 </script>
 
 {% endblock %}

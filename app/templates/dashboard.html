@@ -1,117 +1,124 @@
-{% extends "base.html" %}
+{% extends "base.html" %} {% block content %}
+<div id="notifications"></div>
 
-{% block content %}
-  <div id="notifications"></div>
-  
-  <h1>Welcome, {{ user.username }}!</h1>
-  <p>Your dashboard overview goes here.</p>
+<h1>Welcome, {{ user.username }}!</h1>
+<p>Your dashboard overview goes here.</p>
 
-  <script>
-    let lastCheck = localStorage.getItem('lastNotificationCheck') || '0';
-    let shownNotifications = JSON.parse(localStorage.getItem('shownNotifications') || '[]');
+<script>
+  let lastCheck = localStorage.getItem("lastNotificationCheck") || "0";
+  let shownNotifications = JSON.parse(
+    localStorage.getItem("shownNotifications") || "[]"
+  );
 
-    async function checkNotifications() {
-      try {
-        const response = await fetch('/api/notifications');
-        const data = await response.json();
-        
-        if (data.new_internships && data.new_internships.length > 0) {
-          const newOnes = data.new_internships.filter(internship => 
-            !shownNotifications.includes(internship.id)
+  async function checkNotifications() {
+    try {
+      const response = await fetch("/api/notifications");
+      const data = await response.json();
+
+      if (data.new_internships && data.new_internships.length > 0) {
+        const newOnes = data.new_internships.filter(
+          (internship) => !shownNotifications.includes(internship.id)
+        );
+
+        if (newOnes.length > 0) {
+          showNotifications(newOnes);
+          shownNotifications.push(...newOnes.map((i) => i.id));
+          localStorage.setItem(
+            "shownNotifications",
+            JSON.stringify(shownNotifications)
           );
-          
-          if (newOnes.length > 0) {
-            showNotifications(newOnes);
-            shownNotifications.push(...newOnes.map(i => i.id));
-            localStorage.setItem('shownNotifications', JSON.stringify(shownNotifications));
-          }
         }
-      } catch (error) {
-        console.log('Error checking notifications:', error);
       }
+    } catch (error) {
+      console.log("Error checking notifications:", error);
     }
+  }
 
-    function showNotifications(internships) {
-      const container = document.getElementById('notifications');
-      
-      internships.forEach(internship => {
-        const notification = document.createElement('div');
-        notification.className = 'notification';
-        notification.innerHTML = `
+  function showNotifications(internships) {
+    const container = document.getElementById("notifications");
+
+    internships.forEach((internship) => {
+      const notification = document.createElement("div");
+      notification.className = "notification";
+      notification.innerHTML = `
           <div class="notification-content">
             <strong>New Internship!</strong><br>
             <strong>${internship.company}</strong> - ${internship.role}<br>
-            <small>${internship.location || 'Remote'}</small>
-            ${internship.link ? `<a href="${internship.link}" target="_blank">Apply</a>` : ''}
+            <small>${internship.location || "Remote"}</small>
+            ${
+              internship.link
+                ? `<a href="${internship.link}" target="_blank">Apply</a>`
+                : ""
+            }
             <button onclick="this.parentElement.parentElement.remove()">×</button>
           </div>
         `;
-        container.appendChild(notification);
-        
-        setTimeout(() => {
-          if (notification.parentElement) {
-            notification.remove();
-          }
-        }, 8000);
-      });
-    }
+      container.appendChild(notification);
 
-    checkNotifications();
-    setInterval(checkNotifications, 30000);
-  </script>
+      setTimeout(() => {
+        if (notification.parentElement) {
+          notification.remove();
+        }
+      }, 8000);
+    });
+  }
 
-  <style>
-    #notifications {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 1000;
-      width: 300px;
-    }
+  checkNotifications();
+  setInterval(checkNotifications, 30000);
+</script>
 
-    .notification {
-      background: #2196F3;
-      color: white;
-      padding: 12px;
-      margin-bottom: 10px;
-      border-radius: 4px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-      animation: slideIn 0.3s ease-out;
-    }
+<style>
+  #notifications {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    width: 300px;
+  }
 
-    .notification-content {
-      position: relative;
-    }
+  .notification {
+    background: #2196f3;
+    color: white;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    animation: slideIn 0.3s ease-out;
+  }
 
-    .notification button {
-      position: absolute;
-      top: -5px;
-      right: -5px;
-      background: #f44336;
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 20px;
-      height: 20px;
-      cursor: pointer;
-      font-size: 12px;
-    }
+  .notification-content {
+    position: relative;
+  }
 
-    .notification a {
-      color: white;
-      text-decoration: underline;
-      margin-left: 10px;
-    }
+  .notification button {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #f44336;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    font-size: 12px;
+  }
 
-    @keyframes slideIn {
-      from {
-        transform: translateX(100%);
-        opacity: 0;
-      }
-      to {
-        transform: translateX(0);
-        opacity: 1;
-      }
+  .notification a {
+    color: white;
+    text-decoration: underline;
+    margin-left: 10px;
+  }
+
+  @keyframes slideIn {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
     }
-  </style>
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+</style>
 {% endblock %}

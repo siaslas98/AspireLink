@@ -81,7 +81,6 @@ h3 {
   border: 1px solid #d3f3ee80;
   border-radius: 8px;
   background-color: #1f1f1f;
-  max-height: 80vh;
 }
 
 .form-container:empty {
@@ -179,18 +178,38 @@ small {
 
 .watchlist-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
   gap: 1rem;
-  flex-wrap: wrap; /* ensures it wraps cleanly on small screens */
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  flex-wrap: nowrap;
+  width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .company-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-weight: 600;
+}
+
+.watchlist-item small {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.watchlist-item form {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  margin: 0;
+  white-space: nowrap;
 }
 
 .remove-btn {
@@ -258,4 +277,13 @@ section li {
   background-color: #2a2a2a;
   border-radius: 6px;
   color: #d3f3ee;
+}
+
+.footer {
+  text-align: center;
+  padding: 1rem;
+  margin-top: 2rem;
+  color: #d3f3ee80;
+  font-size: 0.9rem;
+  border-top: 1px solid #444;
 }

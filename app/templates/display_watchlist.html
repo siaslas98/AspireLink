@@ -30,13 +30,12 @@
 <h3>Your Watchlist</h3>
 {% if watchlist_items %} {% for item in watchlist_items %}
 <div class="watchlist-item">
-  <span class="company-name">{{ item.company_name }}</span>
+  <span class="company-name">
+    {{ item.company_name[:30] }}{% if item.company_name|length > 30 %}...{%
+    endif %}
+  </span>
   <small>Added: {{ item.added_at.strftime('%Y-%m-%d') }}</small>
-  <form
-    method="post"
-    action="{{ request.url_for('remove_from_watchlist') }}"
-    style="display: inline"
-  >
+  <form method="post" action="{{ request.url_for('remove_from_watchlist') }}">
     <input type="hidden" name="item_id" value="{{ item.id }}" />
     <button type="submit" class="remove-btn">Remove</button>
   </form>

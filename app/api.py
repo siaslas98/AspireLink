@@ -30,7 +30,10 @@ router = APIRouter()
 def home(
     request: Request,
 ):
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse(
+        "index.html",
+        {"request": request, "current_year": datetime.now().year},
+    )
 
 
 # ─── DASHBOARD ────────────────────────────────────────────────────────────────
@@ -41,7 +44,8 @@ async def dashboard(
     user: User = Depends(get_current_user),
 ):
     return templates.TemplateResponse(
-        "dashboard.html", {"request": request, "user": user}
+        "dashboard.html",
+        {"request": request, "user": user, "current_year": datetime.now().year},
     )
 
 
@@ -57,36 +61,39 @@ async def get_notifications(
         .all()
     )
     names = [c[0] for c in company_names]
-    
+
     if not names:
         return {"new_internships": []}
-    
+
     # Check for internships posted in the last 24 hours
     yesterday = datetime.now() - timedelta(days=1)
     conditions = [Internship.company.ilike(name) for name in names]
-    
+
     new_internships = (
         db.query(Internship)
         .filter(or_(*conditions))
         .filter(Internship.active == True)
+        .filter(Internship.date_posted >= yesterday)  # this was missing
         .order_by(Internship.date_posted.desc())
         .limit(10)
         .all()
     )
-    
+
     # Format response
     notifications = []
     for internship in new_internships:
-        notifications.append({
-            "id": internship.id,
-            "company": internship.company,
-            "role": internship.role,
-            "location": internship.location,
-            "date_posted": internship.date_posted,
-            "link": internship.link
-        })
-    
-    return {"new_internships": notifications}
+        notifications.append(
+            {
+                "id": internship.id,
+                "company": internship.company,
+                "role": internship.role,
+                "location": internship.location,
+                "date_posted": internship.date_posted,
+                "link": internship.link,
+            }
+        )
+
+    return {"new_internships": notifications, "current_year": datetime.now().year}
 
 
 # ─── CHECK-INS ────────────────────────────────────────────────────────────────
@@ -103,7 +110,13 @@ async def checkins(
         .all()
     )
     return templates.TemplateResponse(
-        "checkins.html", {"request": request, "user": user, "checkins": items}
+        "checkins.html",
+        {
+            "request": request,
+            "user": user,
+            "checkins": items,
+            "current_year": datetime.now().year,
+        },
     )
 
 
@@ -121,7 +134,13 @@ async def reminders(
         .all()
     )
     return templates.TemplateResponse(
-        "reminders.html", {"request": request, "user": user, "reminders": items}
+        "reminders.html",
+        {
+            "request": request,
+            "user": user,
+            "reminders": items,
+            "current_year": datetime.now().year,
+        },
     )
 
 
@@ -151,6 +170,7 @@ async def profile(
             "watchlist": watchlist,
             "application_logs": application_logs,
             "stats": stats,
+            "current_year": datetime.now().year,
         },
     )
 
@@ -158,7 +178,10 @@ async def profile(
 # ─── AUTH (Register / Login / Logout) ─────────────────────────────────────────
 @router.get("/register", response_class=HTMLResponse)
 async def show_register_form(request: Request):
-    return templates.TemplateResponse("register.html", {"request": request})
+    return templates.TemplateResponse(
+        "register.html",
+        {"request": request, "current_year": datetime.now().year},
+    )
 
 
 @router.post("/register", response_class=HTMLResponse)
@@ -181,13 +204,20 @@ async def register_user(
     db.add(new_user)
     db.commit()
     return templates.TemplateResponse(
-        "login.html", {"request": request, "msg": "Registration successful"}
+        "login.html",
+        {
+            "request": request,
+            "msg": "Registration successful",
+            "current_year": datetime.now().year,
+        },
     )
 
 
 @router.get("/login", response_class=HTMLResponse)
 async def display_login(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request})
+    return templates.TemplateResponse(
+        "login.html", {"request": request, "current_year": datetime.now().year}
+    )
 
 
 @router.post("/login", response_class=HTMLResponse)
@@ -201,7 +231,11 @@ async def handle_login(
     if not user or not verify_password(password, user.password_hash):
         return templates.TemplateResponse(
             "login.html",
-            {"request": request, "msg": "Invalid username or password!"},
+            {
+                "request": request,
+                "msg": "Invalid username or password!",
+                "current_year": datetime.now().year,
+            },
             status_code=400,
         )
     response = RedirectResponse(url="/dashboard", status_code=302)
@@ -226,7 +260,12 @@ async def display_watchlist(
     items = db.query(WatchlistItem).filter(WatchlistItem.user_id == user.id).all()
     return templates.TemplateResponse(
         "display_watchlist.html",
-        {"request": request, "user": user, "watchlist_items": items},
+        {
+            "request": request,
+            "user": user,
+            "watchlist_items": items,
+            "current_year": datetime.now().year,
+        },
     )
 
 
@@ -297,10 +336,16 @@ async def show_matching_internships(
         )
     return templates.TemplateResponse(
         "internship.html",
-        {"request": request, "user": user, "internships": matched_internships},
+        {
+            "request": request,
+            "user": user,
+            "internships": matched_internships,
+            "current_year": datetime.now().year,
+        },
     )
 
- # ─── APPLICATION LOGGING ──────────────────────────────────────────────────────
+
+# ─── APPLICATION LOGGING ──────────────────────────────────────────────────────
 @router.post("/apply_internship")
 async def apply_internship(
     request: Request,
@@ -309,54 +354,58 @@ async def apply_internship(
     user: User = Depends(get_current_user),
 ):
     try:
-        # Debug: Print the received internship_id
-        print(f"Received internship_id: '{internship_id}'")
-        
         # Check if internship_id is empty or None
         if not internship_id or internship_id.strip() == "":
             print("Error: internship_id is empty")
             return RedirectResponse(url="/internships?error=empty_id", status_code=303)
-        
+
         # Convert internship_id to integer
-        internship_id_int = int(internship_id.strip())
-        print(f"Converted internship_id to int: {internship_id_int}")
-        
+        internship_id = internship_id.strip()
+
         # Get the internship details
-        internship = db.query(Internship).filter(Internship.id == internship_id_int).first()
-        
+        internship = db.query(Internship).filter(Internship.id == internship_id).first()
+
         if not internship:
-            print(f"Error: No internship found with ID {internship_id_int}")
+            print(f"Error: No internship found with ID {internship_id}")
             return RedirectResponse(url="/internships?error=not_found", status_code=303)
-        
+
         print(f"Found internship: {internship.company} - {internship.role}")
-        
+
         # Check if user already applied to this specific internship
-        existing_log = db.query(ApplicationLog).filter(
-            ApplicationLog.user_id == user.id,
-            ApplicationLog.company == internship.company,
-            ApplicationLog.role == internship.role
-        ).first()
-        
+        existing_log = (
+            db.query(ApplicationLog)
+            .filter(
+                ApplicationLog.user_id == user.id,
+                ApplicationLog.company == internship.company,
+                ApplicationLog.role == internship.role,
+            )
+            .first()
+        )
+
         if existing_log:
-            print(f"User {user.id} already applied to {internship.company} - {internship.role}")
-            return RedirectResponse(url="/internships?error=already_applied", status_code=303)
-        
+            print(
+                f"User {user.id} already applied to {internship.company} - {internship.role}"
+            )
+            return RedirectResponse(
+                url="/internships?error=already_applied", status_code=303
+            )
+
         # Create application log with current date
         new_log = ApplicationLog(
             user_id=user.id,
             company=internship.company,
             role=internship.role,
             status="Applied",
-            date_applied=datetime.now()
+            date_applied=datetime.now(),
         )
-        
+
         db.add(new_log)
         db.commit()
         db.refresh(new_log)  # Refresh to get the updated object
-        
+
         print(f"Successfully logged application for user {user.id}")
         return RedirectResponse(url="/internships?success=applied", status_code=303)
-        
+
     except ValueError as e:
         print(f"Invalid internship ID - ValueError: {e}")
         print(f"Problematic internship_id value: '{internship_id}'")
@@ -364,4 +413,6 @@ async def apply_internship(
     except Exception as e:
         print(f"Error logging application: {e}")
         db.rollback()
-        return RedirectResponse(url="/internships?error=database_error", status_code=303)
+        return RedirectResponse(
+            url="/internships?error=database_error", status_code=303
+        )
