@@ -192,31 +192,38 @@ async def register_user(
     password: str = Form(...),
     db: Session = Depends(get_db),
 ):
-    existing = db.query(User).filter(User.email == email).first()
-    if existing:
+    existing_user = (
+        db.query(User)
+        .filter((User.email == email) | (User.username == username))
+        .first()
+    )
+
+    if existing_user:
         return templates.TemplateResponse(
             "register.html",
-            {"request": request, "msg": "Email already in use!"},
+            {
+                "request": request,
+                "msg": "Either username or email has already been used!",
+            },
             status_code=400,
         )
     hashed_pw = hash_password(password)
     new_user = User(username=username, email=email, password_hash=hashed_pw)
     db.add(new_user)
     db.commit()
-    return templates.TemplateResponse(
-        "login.html",
-        {
-            "request": request,
-            "msg": "Registration successful",
-            "current_year": datetime.now().year,
-        },
-    )
+    return RedirectResponse(url="/login?msg=Registration+successful!", status_code=303)
 
 
 @router.get("/login", response_class=HTMLResponse)
 async def display_login(request: Request):
+    msg = request.query_params.get("msg")
     return templates.TemplateResponse(
-        "login.html", {"request": request, "current_year": datetime.now().year}
+        "login.html",
+        {
+            "request": request,
+            "current_year": datetime.now().year,
+            "msg": msg,
+        },
     )
 
 

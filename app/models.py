@@ -22,12 +22,18 @@ class User(Base):
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     # relationships
-    watchlist = relationship("WatchlistItem", back_populates="user")
+    watchlist = relationship(
+        "WatchlistItem", back_populates="user", cascade="all, delete-orphan"
+    )
     application_logs = relationship(
         "ApplicationLog", back_populates="user", cascade="all, delete-orphan"
     )
-    checkins = relationship("CheckIn", back_populates="user", cascade="all, delete-orphan")
-    reminders = relationship("Reminder", back_populates="user", cascade="all, delete-orphan")
+    checkins = relationship(
+        "CheckIn", back_populates="user", cascade="all, delete-orphan"
+    )
+    reminders = relationship(
+        "Reminder", back_populates="user", cascade="all, delete-orphan"
+    )
 
 
 class Internship(Base):
