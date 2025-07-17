@@ -5,6 +5,25 @@ from sqlalchemy.orm import Session
 from app.db import get_db
 from app.models import User
 
+import re
+
+
+def validate_password_strength(password: str):
+    if len(password) < 8:
+        raise HTTPException(
+            status_code=400, detail="Password must be at least 8 characters long."
+        )
+    if not re.search(r"[A-Z]", password):
+        raise HTTPException(
+            status_code=400, detail="Password must include an uppercase letter."
+        )
+    if not re.search(r"[a-z]", password):
+        raise HTTPException(
+            status_code=400, detail="Password must include a lowercase letter."
+        )
+    if not re.search(r"[0-9]", password):
+        raise HTTPException(status_code=400, detail="Password must include a number.")
+
 
 def hash_password(password: str) -> str:
     return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")

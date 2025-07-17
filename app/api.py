@@ -18,7 +18,12 @@ from app.models import (
     Reminder,
 )
 
-from app.auth import hash_password, verify_password, get_current_user
+from app.auth import (
+    validate_password_strength,
+    hash_password,
+    verify_password,
+    get_current_user,
+)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "app", "templates"))
@@ -207,6 +212,8 @@ async def register_user(
             },
             status_code=400,
         )
+
+    validate_password_strength(password)
     hashed_pw = hash_password(password)
     new_user = User(username=username, email=email, password_hash=hashed_pw)
     db.add(new_user)
