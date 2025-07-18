@@ -268,17 +268,42 @@ async def logout():
 @router.get("/watchlist", response_class=HTMLResponse)
 async def display_watchlist(
     request: Request,
+    page: int = 1,
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    items = db.query(WatchlistItem).filter(WatchlistItem.user_id == user.id).all()
+
+    PER_PAGE = 10
+    offset = (page - 1) * PER_PAGE
+
+    all_companies = (
+        db.query(Internship.company)
+        .distinct()
+        .order_by(Internship.company)
+        .offset(offset)
+        .limit(PER_PAGE)
+        .all()
+    )
+    total_companies = db.query(Internship.company).distinct().count()
+    total_pages = (total_companies + PER_PAGE - 1) // PER_PAGE
+
+    watchlist_set = {
+        item.company_name
+        for item in db.query(WatchlistItem).filter(WatchlistItem.user_id == user.id)
+    }
+    companies = [
+        {"name": c.company, "in_watchlist": c.company in watchlist_set}
+        for c in all_companies
+    ]
+
     return templates.TemplateResponse(
         "display_watchlist.html",
         {
             "request": request,
             "user": user,
-            "watchlist_items": items,
-            "current_year": datetime.now().year,
+            "companies": companies,
+            "page": page,
+            "total_pages": total_pages,
         },
     )
 
@@ -287,6 +312,7 @@ async def display_watchlist(
 async def add_to_watchlist(
     request: Request,
     company_name: str = Form(...),
+    page: int = Form(1),
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
@@ -302,26 +328,26 @@ async def add_to_watchlist(
         db.add(new_item)
         db.commit()
 
-    return RedirectResponse(url="/watchlist", status_code=303)
+    return RedirectResponse(url=f"/watchlist?page={page}", status_code=303)
 
 
 @router.post("/remove_from_watchlist", response_class=HTMLResponse)
 async def remove_from_watchlist(
     request: Request,
-    item_id: int = Form(...),
+    company_name: str = Form(...),
+    page: int = Form(1),
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    item = db.query(WatchlistItem).get(item_id)
-    if item and item.user_id == user.id:
+    item = (
+        db.query(WatchlistItem)
+        .filter_by(user_id=user.id, company_name=company_name.strip())
+        .first()
+    )
+    if item:
         db.delete(item)
         db.commit()
-        msg = f"Removed {item.company_name} from your watchlist"
-    else:
-        msg = "Could not find that item."
-
-    items = db.query(WatchlistItem).filter(WatchlistItem.user_id == user.id).all()
-    return RedirectResponse(url="/watchlist", status_code=303)
+    return RedirectResponse(url=f"/watchlist?page={page}", status_code=303)
 
 
 # ─── INTERNSHIPS ───────────────────────────────────────────────────────────────

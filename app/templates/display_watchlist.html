@@ -9,38 +9,36 @@
 </div>
 {% endif %}
 
-<form
-  class="user-form"
-  method="post"
-  action="{{ request.url_for('add_to_watchlist') }}"
->
-  <div class="form-group">
-    <label for="company_name">Add Company:</label>
-    <input
-      id="company_name"
-      name="company_name"
-      type="text"
-      placeholder="company name"
-      required
-    />
-    <button type="submit">Add</button><br /><br />
-  </div>
-</form>
-
-<h3>Your Watchlist</h3>
-{% if watchlist_items %} {% for item in watchlist_items %}
+<h3>Available Companies</h3>
+{% if companies %} {% for company in companies %}
 <div class="watchlist-item">
   <span class="company-name">
-    {{ item.company_name[:30] }}{% if item.company_name|length > 30 %}...{%
-    endif %}
+    {{ company.name[:30] }}{% if company.name|length > 30 %}...{% endif %}
   </span>
-  <small>Added: {{ item.added_at.strftime('%Y-%m-%d') }}</small>
-  <form method="post" action="{{ request.url_for('remove_from_watchlist') }}">
-    <input type="hidden" name="item_id" value="{{ item.id }}" />
-    <button type="submit" class="remove-btn">Remove</button>
+  {% set action_url = request.url_for('remove_from_watchlist') if
+  company.in_watchlist else request.url_for('add_to_watchlist') %}
+  <form method="post" action="{{ action_url }}">
+    <input type="hidden" name="page" value="{{ page }}" />
+    <input type="hidden" name="company_name" value="{{ company.name }}" />
+    <button type="submit">
+      {{ "Remove" if company.in_watchlist else "Add to Watchlist" }}
+    </button>
   </form>
 </div>
-
 {% endfor %} {% else %}
-<p>No companies in your watchlist yet.</p>
+<p>No companies found.</p>
+{% endif %} {% if total_pages > 1 %}
+<div class="pagination">
+  {% if page > 1 %}
+  <a href="{{ request.url_for('display_watchlist') }}?page={{ page - 1 }}"
+    >Previous</a
+  >
+  {% endif %}
+  <span>Page {{ page }} of {{ total_pages }}</span>
+  {% if page < total_pages %}
+  <a href="{{ request.url_for('display_watchlist') }}?page={{ page + 1 }}"
+    >Next</a
+  >
+  {% endif %}
+</div>
 {% endif %} {% endblock %}

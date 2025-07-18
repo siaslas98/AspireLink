@@ -47,3 +47,7 @@ docker exec -it internship-support-tool-web-1 python scripts/init_database.py
   ```bash
   docker exec -it internship-support-tool-db-1 psql -U myuser -d internship_db
   ```
+- After accessing database, clear all entries in the users and watchlist table and reset id to 0
+  ```
+  TRUNCATE watchlist_items, users CASCADE;
+  ```

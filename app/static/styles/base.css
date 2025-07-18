@@ -279,6 +279,33 @@ section li {
   color: #d3f3ee;
 }
 
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.pagination a {
+  padding: 0.5rem 1rem;
+  background-color: #d3f3ee;
+  color: #1f1f1f;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.pagination a:hover {
+  background-color: #c0e8dd;
+}
+
+.pagination span {
+  color: #d3f3ee80;
+  font-weight: 500;
+}
+
 .footer {
   text-align: center;
   padding: 1rem;
