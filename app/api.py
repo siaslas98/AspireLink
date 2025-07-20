@@ -284,6 +284,7 @@ async def display_watchlist(
         .limit(PER_PAGE)
         .all()
     )
+
     total_companies = db.query(Internship.company).distinct().count()
     total_pages = (total_companies + PER_PAGE - 1) // PER_PAGE
 
