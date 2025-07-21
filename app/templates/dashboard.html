@@ -2,13 +2,27 @@
 <div id="notifications"></div>
 
 <h1>Welcome, {{ user.username }}!</h1>
-<p>Your dashboard overview goes here.</p>
+
+<div class="checkin-container">
+<h2 class="checkins">Check-Ins</h2>
+<div id="calendar"></div><br>
+<button onclick="checkInToday()">Check In Today</button>
+
+{# <ul>
+{% for checkin in checkins %}
+  <li>{{ checkin.user_id|e }}</li>
+  <li>{{ checkin.note|e }}</li>
+  <li>{{ checkin.date|e }}</li>
+{% endfor %}
+</ul> #}
+</div>
 
 <script>
   let lastCheck = localStorage.getItem("lastNotificationCheck") || "0";
   let shownNotifications = JSON.parse(
     localStorage.getItem("shownNotifications") || "[]"
   );
+  const checkinData = {{ checkins | tojson }};
 
   async function checkNotifications() {
     try {
@@ -65,6 +79,35 @@
 
   checkNotifications();
   setInterval(checkNotifications, 30000);
+  
+  async function checkInToday() {
+    const res = await fetch("/api/checkin", { method: "POST" });
+    document.querySelector('button').disabled = true; 
+
+    if (res.ok) {
+      alert("Checked in!");
+      calendar.refetchEvents(); // Refresh calendar events if you're using event source
+    } else {
+      const data = await res.json();
+      alert(data.message || "Check-in failed.");
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const calendarEl = document.getElementById('calendar');
+
+    window.calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth',
+        events: checkinData.map(c => ({
+        start: new Date(c.date).toISOString().split('T')[0],
+        allDay: true,
+        display: 'background',
+        backgroundColor: '#00bfa6',
+      }))
+    });
+    calendar.render();
+  });
+
 </script>
 
 <style>
@@ -119,6 +162,22 @@
       transform: translateX(0);
       opacity: 1;
     }
+  }
+
+  .checkin-container{
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+  }
+  #calendar {
+    width: 60%;
+    margin: auto;
+  }
+
+  .checkin-container button{
+    margin-top: 50px;
+    width: 50%;
+    margin: 50px auto; 
   }
 </style>
 {% endblock %}
