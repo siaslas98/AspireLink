@@ -149,6 +149,19 @@
     });
   }
 
+  // function for check-in button
+  async function checkInToday() {
+    const res = await fetch("/api/checkin", { method: "POST" });
+    document.querySelector(".checkin-button").disabled = true;
+    if (res.ok) {
+      alert("Checked in!");
+      if (window.calendar) calendar.refetchEvents();
+    } else {
+      const data = await res.json();
+      alert(data.message || "Check‑in failed.");
+    }
+  }
+
   document.addEventListener("DOMContentLoaded", () => {
     const calendarEl = document.getElementById("calendar");
     window.calendar = new FullCalendar.Calendar(calendarEl, {
