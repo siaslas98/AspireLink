@@ -1,48 +1,58 @@
+<!-- app/templates/base.html -->
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Internship-Support-Tool</title>
-    <!-- point to your real CSS path under static/styles -->
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+    <title>Internship‑Support‑Tool</title>
+    <!-- FullCalendar CSS/JS -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"
+    ></script>
+    <!-- Main CSS -->
     <link
       rel="stylesheet"
       href="{{ url_for('static', path='styles/base.css') }}"
     />
+    {% block head_extra %}{% endblock %}
   </head>
   <body>
     <!-- main nav -->
     <nav class="main-nav">
-      <h1>Internship-Support-Tool</h1>
+      <h1>Internship‑Support‑Tool</h1>
       <ul>
         {% if user %}
-        <li><a href="{{ request.url_for('dashboard') }}">Dashboard</a></li>
-        <li>
-          <a href="{{ request.url_for('show_matching_internships') }}"
-            >Internships</a
-          >
-        </li>
-        <li>
-          <a href="{{ request.url_for('display_watchlist') }}">Watchlist</a>
-        </li>
-        {% if dashboard %}
-        <li><a href="{{ request.url_for('profile') }}">Profile</a></li>
-        <li><a href="{{ request.url_for('checkins') }}">Check-Ins</a></li>
-        <li><a href="{{ request.url_for('reminders') }}">Reminders</a></li>
-        {% endif %}
-        <li><a href="{{ request.url_for('logout') }}">Logout</a></li>
+          <li><a href="{{ request.url_for('dashboard') }}">Dashboard</a></li>
+          <li>
+            <a href="{{ request.url_for('show_matching_internships') }}"
+              >Internships</a
+            >
+          </li>
+          <li><a href="{{ request.url_for('display_watchlist') }}"
+              >Watchlist</a
+            ></li>
+          {% if dashboard %}
+            <li><a href="{{ request.url_for('profile') }}">Profile</a></li>
+            <li><a href="{{ request.url_for('checkins') }}">Check‑Ins</a></li>
+            <li><a href="{{ request.url_for('reminders') }}">Reminders</a></li>
+          {% endif %}
+          <li><a href="{{ request.url_for('logout') }}">Logout</a></li>
         {% else %}
-        <li>
-          <a href="{{ request.url_for('show_register_form') }}">Register</a>
-        </li>
-        <li><a href="{{ request.url_for('display_login') }}">Login</a></li>
+          <li>
+            <a href="{{ request.url_for('show_register_form') }}">Register</a>
+          </li>
+          <li><a href="{{ request.url_for('display_login') }}">Login</a></li>
         {% endif %}
       </ul>
     </nav>
+
     <!-- form container -->
     <div class="form-container">{% block form %}{% endblock %}</div>
+
     <!-- content container -->
     <div class="content-container">{% block content %}{% endblock %}</div>
 
@@ -52,5 +62,7 @@
         &copy; {{ current_year }} Internship Support Tool — All rights reserved.
       </p>
     </footer>
+
+    {% block scripts %}{% endblock %}
   </body>
 </html>

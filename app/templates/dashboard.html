@@ -1,24 +1,110 @@
-{% extends "base.html" %} {% block content %}
-<div id="notifications"></div>
+<!-- app/templates/dashboard.html -->
+{% extends "base.html" %}
 
-<h1>Welcome, {{ user.username }}!</h1>
+{% block head_extra %}
+<style>
+  /* hide FullCalendar’s internal scrollbars */
+  #calendar .fc-scroller-liquid,
+  #calendar .fc-scrollgrid-liquid {
+    overflow-y: hidden !important;
+  }
 
-<div class="checkin-container">
-<h2 class="checkins">Check-Ins</h2>
-<div id="calendar"></div><br>
-<button onclick="checkInToday()">Check In Today</button>
+  /* calendar container styling */
+  .calendar-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
 
-{# <ul>
-{% for checkin in checkins %}
-  <li>{{ checkin.user_id|e }}</li>
-  <li>{{ checkin.note|e }}</li>
-  <li>{{ checkin.date|e }}</li>
-{% endfor %}
-</ul> #}
-</div>
+  /* toolbar layout: left buttons, centered title, right button */
+  .fc .fc-header-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background-color: #1e1e1e;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+  }
+  .fc .fc-toolbar-chunk:nth-child(2) {
+    flex: 1;
+    display: flex;
+    justify-content: flex-start;
+    padding-left: 12rem;
+  }
+  /* toolbar button styling */
+  .fc .fc-button {
+    background-color: #2e2e2e;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    margin: 0 0.25rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+  }
+  .fc .fc-button:hover {
+    background-color: #3e3e3e;
+  }
 
+  /* centered title with no transform */
+  .fc .fc-toolbar-title {
+    font-size: 1.5rem;
+    margin: 0;
+  }
+
+  /* header cells styling */
+  #calendar .fc-col-header-cell {
+    background-color: #2a2a2a;
+    color: #ddd;
+    font-weight: bold;
+    padding: 0.5rem 0;
+  }
+
+  /* larger day numbers */
+  #calendar .fc-daygrid-day-number {
+    font-size: 1.2rem;
+    padding: 0.5rem;
+  }
+
+  /* hover effect */
+  #calendar .fc-daygrid-day:hover {
+    background-color: rgba(0, 191, 166, 0.1);
+  }
+
+  /* check-in button styling */
+  .checkin-button {
+    margin: 1.5rem 0;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    background-color: #00bfa6;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .checkin-button:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+  <div id="notifications"></div>
+  <div class="calendar-container">
+    <h1>Welcome, {{ user.username }}!</h1>
+    <div id="calendar"></div>
+    <button onclick="checkInToday()" class="checkin-button">
+      Check In Today
+    </button>
+  </div>
+{% endblock %}
+
+{% block scripts %}
 <script>
-  let lastCheck = localStorage.getItem("lastNotificationCheck") || "0";
   let shownNotifications = JSON.parse(
     localStorage.getItem("shownNotifications") || "[]"
   );
@@ -26,158 +112,67 @@
 
   async function checkNotifications() {
     try {
-      const response = await fetch("/api/notifications");
-      const data = await response.json();
-
-      if (data.new_internships && data.new_internships.length > 0) {
+      const res = await fetch("/api/notifications");
+      const data = await res.json();
+      if (data.new_internships?.length) {
         const newOnes = data.new_internships.filter(
-          (internship) => !shownNotifications.includes(internship.id)
+          i => !shownNotifications.includes(i.id)
         );
-
-        if (newOnes.length > 0) {
+        if (newOnes.length) {
           showNotifications(newOnes);
-          shownNotifications.push(...newOnes.map((i) => i.id));
+          shownNotifications.push(...newOnes.map(i => i.id));
           localStorage.setItem(
             "shownNotifications",
             JSON.stringify(shownNotifications)
           );
         }
       }
-    } catch (error) {
-      console.log("Error checking notifications:", error);
+    } catch (err) {
+      console.log("Error checking notifications:", err);
     }
   }
 
-  function showNotifications(internships) {
+  function showNotifications(items) {
     const container = document.getElementById("notifications");
-
-    internships.forEach((internship) => {
-      const notification = document.createElement("div");
-      notification.className = "notification";
-      notification.innerHTML = `
-          <div class="notification-content">
-            <strong>New Internship!</strong><br>
-            <strong>${internship.company}</strong> - ${internship.role}<br>
-            <small>${internship.location || "Remote"}</small>
-            ${
-              internship.link
-                ? `<a href="${internship.link}" target="_blank">Apply</a>`
-                : ""
-            }
-            <button onclick="this.parentElement.parentElement.remove()">×</button>
-          </div>
-        `;
-      container.appendChild(notification);
-
-      setTimeout(() => {
-        if (notification.parentElement) {
-          notification.remove();
-        }
-      }, 8000);
+    items.forEach(item => {
+      const n = document.createElement("div");
+      n.className = "notification";
+      n.innerHTML = `<div class="notification-content">
+        <strong>New Internship!</strong><br>
+        <strong>${item.company}</strong> - ${item.role}<br>
+        <small>${item.location || "Remote"}</small>
+        ${item.link ? `<a href="${item.link}" target="_blank">Apply</a>` : ""}
+        <button onclick="this.parentElement.parentElement.remove()">×</button>
+      </div>`;
+      container.appendChild(n);
+      setTimeout(() => n.remove(), 8000);
     });
   }
 
-  checkNotifications();
-  setInterval(checkNotifications, 30000);
-  
-  async function checkInToday() {
-    const res = await fetch("/api/checkin", { method: "POST" });
-    document.querySelector('button').disabled = true; 
-
-    if (res.ok) {
-      alert("Checked in!");
-      calendar.refetchEvents(); // Refresh calendar events if you're using event source
-    } else {
-      const data = await res.json();
-      alert(data.message || "Check-in failed.");
-    }
-  }
-
-  document.addEventListener('DOMContentLoaded', function () {
-    const calendarEl = document.getElementById('calendar');
-
+  document.addEventListener("DOMContentLoaded", () => {
+    const calendarEl = document.getElementById("calendar");
     window.calendar = new FullCalendar.Calendar(calendarEl, {
-      initialView: 'dayGridMonth',
-        events: checkinData.map(c => ({
-        start: new Date(c.date).toISOString().split('T')[0],
+      initialView: "dayGridMonth",
+      headerToolbar: {
+        left: "today prev,next",
+        center: "title",
+        right: ""
+      },
+      height: "auto",
+      contentHeight: 800,
+      aspectRatio: 1.8,
+      dayMaxEvents: true,
+      events: checkinData.map(c => ({
+        start: new Date(c.date).toISOString().split("T")[0],
         allDay: true,
-        display: 'background',
-        backgroundColor: '#00bfa6',
+        display: "background",
+        backgroundColor: "#00bfa6"
       }))
     });
     calendar.render();
+
+    checkNotifications();
+    setInterval(checkNotifications, 30000);
   });
-
 </script>
-
-<style>
-  #notifications {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1000;
-    width: 300px;
-  }
-
-  .notification {
-    background: #2196f3;
-    color: white;
-    padding: 12px;
-    margin-bottom: 10px;
-    border-radius: 4px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    animation: slideIn 0.3s ease-out;
-  }
-
-  .notification-content {
-    position: relative;
-  }
-
-  .notification button {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background: #f44336;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
-    font-size: 12px;
-  }
-
-  .notification a {
-    color: white;
-    text-decoration: underline;
-    margin-left: 10px;
-  }
-
-  @keyframes slideIn {
-    from {
-      transform: translateX(100%);
-      opacity: 0;
-    }
-    to {
-      transform: translateX(0);
-      opacity: 1;
-    }
-  }
-
-  .checkin-container{
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-  }
-  #calendar {
-    width: 60%;
-    margin: auto;
-  }
-
-  .checkin-container button{
-    margin-top: 50px;
-    width: 50%;
-    margin: 50px auto; 
-  }
-</style>
 {% endblock %}
