@@ -27,9 +27,11 @@
         <li>
           <a href="{{ request.url_for('display_watchlist') }}">Watchlist</a>
         </li>
+        {% if dashboard %}
         <li><a href="{{ request.url_for('profile') }}">Profile</a></li>
         <li><a href="{{ request.url_for('checkins') }}">Check-Ins</a></li>
         <li><a href="{{ request.url_for('reminders') }}">Reminders</a></li>
+        {% endif %}
         <li><a href="{{ request.url_for('logout') }}">Logout</a></li>
         {% else %}
         <li>

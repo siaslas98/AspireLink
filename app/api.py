@@ -2,9 +2,9 @@ import os
 from fastapi import APIRouter, Request, Form, Depends
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 
-from sqlalchemy import or_
+from sqlalchemy import or_, cast, Date, String
 from sqlalchemy.orm import Session
 from pydantic import EmailStr
 
@@ -29,6 +29,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "app", "templates"))
 router = APIRouter()
 
+current_year = datetime.now().year
+
 
 # ___ APP Home Page ____________________________________________________________
 @router.get("/", response_class=HTMLResponse)
@@ -36,7 +38,7 @@ def home(
     request: Request,
 ):
     return templates.TemplateResponse(
-        "index.html",
+        "calendar.html",
         {"request": request, "current_year": datetime.now().year},
     )
 
@@ -48,9 +50,23 @@ async def dashboard(
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
+    user_checkins = db.query(CheckIn).filter(user.id == CheckIn.user_id).all()
+
+    # Convert to plain dicts
+    checkin_dicts = [
+        {"date": c.date.date().isoformat(), "note": c.note}  # "YYYY-MM-DD"
+        for c in user_checkins
+    ]
+
     return templates.TemplateResponse(
         "dashboard.html",
-        {"request": request, "user": user, "current_year": datetime.now().year},
+        {
+            "request": request,
+            "user": user,
+            "checkins": checkin_dicts,
+            "current_year": current_year,
+            "dashboard": 1,
+        },
     )
 
 
@@ -78,7 +94,7 @@ async def get_notifications(
         db.query(Internship)
         .filter(or_(*conditions))
         .filter(Internship.active == True)
-        .filter(Internship.date_posted >= yesterday)  # this was missing
+        .filter(Internship.date_posted >= cast(yesterday, String))  # this was missing
         .order_by(Internship.date_posted.desc())
         .limit(10)
         .all()
@@ -457,3 +473,24 @@ async def apply_internship(
         return RedirectResponse(
             url="/internships?error=database_error", status_code=303
         )
+
+
+@router.post("/api/checkin")
+async def checkin_today(
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    today = datetime.utcnow().date()
+    exists = (
+        db.query(CheckIn)
+        .filter(CheckIn.user_id == user.id)
+        .filter(CheckIn.date.cast(Date) == today)
+        .first()
+    )
+    if exists:
+        return JSONResponse(content={"message": "Already checked in"}, status_code=400)
+
+    new_checkin = CheckIn(user_id=user.id, date=datetime.now(timezone.utc))
+    db.add(new_checkin)
+    db.commit()
+    return {"message": "Check-in successful"}
