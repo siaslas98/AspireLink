@@ -38,8 +38,9 @@ def home(
     request: Request,
 ):
     return templates.TemplateResponse(
-        "calendar.html",
-        {"request": request, "current_year": datetime.now().year},
+        request,
+        "base.html",
+        {"msg": "Hello World"},
     )
 
 
@@ -221,11 +222,9 @@ async def register_user(
 
     if existing_user:
         return templates.TemplateResponse(
+            request,
             "register.html",
-            {
-                "request": request,
-                "msg": "Either username or email has already been used!",
-            },
+            {"msg": "Either username or email has already been used!"},
             status_code=400,
         )
 

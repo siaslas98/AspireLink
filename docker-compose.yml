@@ -12,6 +12,14 @@ services:
     #   - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+  test-db:
+    image: postgres
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: test_db
+    volumes:
+      - test_postgres_data:/var/lib/postgresql/data
 
   web:
     build: .
@@ -40,3 +48,4 @@ services:
 
 volumes:
   postgres_data:
+  test_postgres_data:

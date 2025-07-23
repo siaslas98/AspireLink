@@ -3,7 +3,7 @@ name: docker-ci
 on: [push, pull_request]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -13,18 +13,21 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Create .env file
-        run: echo "DATABASE_URL=postgresql://myuser:mypassword@db:5432/internship_db" > .env
+      - name: Create .env for test
+        run: echo "DATABASE_URL=postgresql://user:password@test-db:5432/test_db" > .env
 
       - name: Start services
         run: docker compose up -d --build
 
-      - name: Wait for Postgres to be ready
+      - name: Wait for Postgres (test-db) to be ready
         run: |
-          echo "Waiting for Postgres to be ready..."
-          until docker exec internship-support-tool-db-1 pg_isready -U myuser; do
-            echo "Not ready yet..."; sleep 2;
+          echo "Waiting for test-db..."
+          until docker exec internship-support-tool-test-db-1 pg_isready -U user; do
+            echo "Still waiting..."; sleep 2;
           done
+
+      - name: Init test database
+        run: docker exec internship-support-tool-web-1 python scripts/init_database.py
 
       - name: Run tests
         run: docker exec internship-support-tool-web-1 pytest tests

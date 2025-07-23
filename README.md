@@ -51,3 +51,45 @@ docker exec -it internship-support-tool-web-1 python scripts/init_database.py
   ```
   TRUNCATE watchlist_items, users CASCADE;
   ```
+- Run tests
+  ```
+  docker exec -it internship-support-tool-web-1 pytest -v tests/
+  ```
+
+```
+internship-support-tool
+├─ Dockerfile
+├─ README.md
+├─ app
+│  ├─ api.py
+│  ├─ auth.py
+│  ├─ db.py
+│  ├─ main.py
+│  ├─ models.py
+│  ├─ schema.py
+│  ├─ static
+│  │  └─ styles
+│  │     └─ base.css
+│  └─ templates
+│     ├─ base.html
+│     ├─ checkins.html
+│     ├─ dashboard.html
+│     ├─ display_watchlist.html
+│     ├─ index.html
+│     ├─ internship.html
+│     ├─ login.html
+│     ├─ profile.html
+│     ├─ register.html
+│     └─ reminders.html
+├─ docker-compose.yml
+├─ docs
+│  ├─ directory_struct.txt
+│  └─ firststeps.txt
+├─ requirements.txt
+├─ scripts
+│  ├─ fetch_internships.py
+│  └─ init_database.py
+└─ tests
+   └─ test_reg.py
+
+```
