@@ -11,13 +11,6 @@ This tool aims to reduce the stress of internship hunting by centralizing opport
 
 ```
 internship-support-tool
-├─ .pytest_cache
-│  ├─ CACHEDIR.TAG
-│  ├─ README.md
-│  └─ v
-│     └─ cache
-│        ├─ lastfailed
-│        └─ nodeids
 ├─ Dockerfile
 ├─ README.md
 ├─ app
