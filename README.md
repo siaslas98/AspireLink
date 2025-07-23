@@ -1,4 +1,4 @@
-## Project Overview
+## Project Overview:
 
 **Internship Support Tool** is a web-based platform designed to help university students—especially those in technical fields—stay organized and motivated during the internship application process. The platform combines two key features:
 
@@ -7,7 +7,50 @@
 
 This tool aims to reduce the stress of internship hunting by centralizing opportunity tracking, boosting accountability, and supporting students' long-term career growth.
 
-## Basic Setup
+## Directory Structure:
+
+```
+internship-support-tool
+├─ .pytest_cache
+│  ├─ CACHEDIR.TAG
+│  ├─ README.md
+│  └─ v
+│     └─ cache
+│        ├─ lastfailed
+│        └─ nodeids
+├─ Dockerfile
+├─ README.md
+├─ app
+│  ├─ api.py
+│  ├─ auth.py
+│  ├─ db.py
+│  ├─ main.py
+│  ├─ models.py
+│  ├─ schema.py
+│  ├─ static
+│  │  └─ styles
+│  │     └─ base.css
+│  └─ templates
+│     ├─ base.html
+│     ├─ dashboard.html
+│     ├─ display_watchlist.html
+│     ├─ index.html
+│     ├─ internship.html
+│     ├─ login.html
+│     ├─ profile.html
+│     └─ register.html
+├─ docker-compose.yml
+├─ requirements.txt
+├─ scripts
+│  ├─ fetch_internships.py
+│  └─ init_database.py
+└─ tests
+   ├─ conftest.py
+   └─ test_reg.py
+
+```
+
+## Basic Setup:
 
 ### Clone the repository
 
@@ -55,41 +98,3 @@ docker exec -it internship-support-tool-web-1 python scripts/init_database.py
   ```
   docker exec -it internship-support-tool-web-1 pytest -v tests/
   ```
-
-```
-internship-support-tool
-├─ Dockerfile
-├─ README.md
-├─ app
-│  ├─ api.py
-│  ├─ auth.py
-│  ├─ db.py
-│  ├─ main.py
-│  ├─ models.py
-│  ├─ schema.py
-│  ├─ static
-│  │  └─ styles
-│  │     └─ base.css
-│  └─ templates
-│     ├─ base.html
-│     ├─ checkins.html
-│     ├─ dashboard.html
-│     ├─ display_watchlist.html
-│     ├─ index.html
-│     ├─ internship.html
-│     ├─ login.html
-│     ├─ profile.html
-│     ├─ register.html
-│     └─ reminders.html
-├─ docker-compose.yml
-├─ docs
-│  ├─ directory_struct.txt
-│  └─ firststeps.txt
-├─ requirements.txt
-├─ scripts
-│  ├─ fetch_internships.py
-│  └─ init_database.py
-└─ tests
-   └─ test_reg.py
-
-```
