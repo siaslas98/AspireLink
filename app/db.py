@@ -12,7 +12,7 @@ load_dotenv(
 )
 
 DATABASE_URL = os.getenv(
-    "DATABASE_URL", "postgresql://myuser:mypassword@db:5432/internship_db"
+    "DATABASE_URL", "postgresql://myuser:mypassword@db:5432/aspirelink_db"
 )
 
 engine = create_engine(DATABASE_URL)

@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: mypassword
-      POSTGRES_DB: internship_db
+      POSTGRES_DB: aspirelink_db
     # ports:
     #   - "5432:5432"
     volumes:
