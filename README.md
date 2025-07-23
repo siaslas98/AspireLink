@@ -10,7 +10,7 @@ This tool aims to reduce the stress of internship hunting by centralizing opport
 ## Directory Structure:
 
 ```
-internship-support-tool
+AspireLink
 ├─ Dockerfile
 ├─ README.md
 ├─ app
@@ -48,14 +48,14 @@ internship-support-tool
 ### Clone the repository
 
 ```bash
-git clone https://github.com/siaslas98/internship-support-tool.git
-cd internship-support-tool
+git clone https://github.com/siaslas98/AspireLink.git
+cd AspireLink
 ```
 
 ### Setup Environment Variables
 
 - Create a `.env` file in the root of the repository and add the following line:
-  `DATABASE_URL=postgresql://myuser:mypassword@db:5432/internship_db`
+  `DATABASE_URL=postgresql://myuser:mypassword@db:5432/aspirelink_db`
   **Note: this runs with docker, no need to install PostgreSQL separately**
 
 ### Run the app using Docker
@@ -74,20 +74,23 @@ cd internship-support-tool
 In another terminal:
 
 ```bash
-docker exec -it internship-support-tool-web-1 python scripts/init_database.py
+docker exec -it aspirelink-web-1 python scripts/init_database.py
 ```
 
 ## Some Important Commands:
 
 - Access the database
+
   ```bash
-  docker exec -it internship-support-tool-db-1 psql -U myuser -d internship_db
+  docker exec -it aspirelink-db-1 psql -U myuser -d aspirelink_db
   ```
+
 - After accessing database, clear all entries in the users and watchlist table and reset id to 0
   ```
   TRUNCATE watchlist_items, users CASCADE;
   ```
 - Run tests
+
   ```
-  docker exec -it internship-support-tool-web-1 pytest -v tests/
+  docker exec -it aspirelink-web-1 pytest -v tests/
   ```
