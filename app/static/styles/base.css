@@ -314,3 +314,8 @@ section li {
   font-size: 0.9rem;
   border-top: 1px solid #444;
 }
+
+.about p {
+  font-size: 1.2rem;
+  line-height: 30px;
+}

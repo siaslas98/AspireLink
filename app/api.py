@@ -39,7 +39,7 @@ def home(
 ):
     return templates.TemplateResponse(
         request,
-        "base.html",
+        "index.html",
         {"msg": "Hello World"},
     )
 
