@@ -4,6 +4,10 @@
   padding: 0;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 /* General */
 body {
   background-color: #1f1f1f;
@@ -21,12 +25,16 @@ h3 {
 
 /* nav bar styling */
 .main-nav {
+  position: sticky;
+  top: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
   border-bottom: 1px solid #d3f3ee50;
   margin-top: 1.5rem;
+  background-color: #1f1f1f; /* ensures nav covers content underneath */
+  z-index: 999; /* ensures nav stays above everything else */
 }
 .main-nav h1 {
   font-weight: 600;
@@ -55,6 +63,11 @@ h3 {
 }
 .main-nav a:hover::after {
   width: 100%;
+}
+
+.form-container,
+.content-container {
+  margin-top: 6rem; /* ensures space below sticky nav */
 }
 
 /* content styling */
@@ -133,7 +146,7 @@ input[type="submit"] {
 }
 button:hover,
 input[type="submit"]:hover {
-  background-color: #c0e8dd;
+  background-color: #7cc4b1;
 }
 
 /* Messages */
@@ -256,10 +269,6 @@ td {
   border-bottom: 1px solid #3a3a3a;
 }
 
-tbody tr:hover {
-  background-color: #2e2e2e;
-}
-
 button:active {
   transform: scale(0.98);
 }
@@ -318,4 +327,15 @@ section li {
 .about p {
   font-size: 1.2rem;
   line-height: 30px;
+}
+
+#profile,
+#app-logs,
+#quick-stats {
+  width: 45%;
+  margin: 0 auto;
+}
+
+#profile h2 {
+  text-align: center;
 }

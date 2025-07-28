@@ -22,7 +22,7 @@
   </head>
   <body>
     <!-- main nav -->
-    <nav class="main-nav">
+    <nav class="main-nav" id="main-nav">
       <h1>AspireLink</h1>
       <ul>
         {% if user %}
@@ -36,9 +36,8 @@
               >Watchlist</a
             ></li>
           {% if dashboard %}
-            <li><a href="{{ request.url_for('profile') }}">Profile</a></li>
-            <li><a href="{{ request.url_for('checkins') }}">Check‑Ins</a></li>
-            <li><a href="{{ request.url_for('reminders') }}">Reminders</a></li>
+            <li><a href="#calendar-container">Check‑Ins</a></li>
+            <li><a href="#reminders">Reminders</a></li>
           {% endif %}
           <li><a href="{{ request.url_for('logout') }}">Logout</a></li>
         {% else %}
@@ -53,6 +52,8 @@
     <!-- form container -->
     <div class="form-container">{% block form %}{% endblock %}</div>
 
+    {% block dashboard %}{% endblock %}
+
     <!-- content container -->
     <div class="content-container">{% block content %}{% endblock %}</div>
 
@@ -64,5 +65,19 @@
     </footer>
 
     {% block scripts %}{% endblock %}
+
+    {# Remove navbar border on scroll #}
+    <script>
+      const nav = document.getElementById('main-nav');
+
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 10) {
+          nav.style.borderBottom = 'none';
+        } else {
+          nav.style.borderBottom = '1px solid #d3f3ee50';
+        }
+      });
+    </script>
+
   </body>
 </html>

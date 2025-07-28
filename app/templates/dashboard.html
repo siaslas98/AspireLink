@@ -11,7 +11,7 @@
 
   /* calendar container styling */
   .calendar-container {
-    max-width: 1200px;
+    max-width: 1000px;
     margin: 2rem auto;
     padding: 1rem;
     display: flex;
@@ -92,15 +92,82 @@
 </style>
 {% endblock %}
 
-{% block content %}
-  <div id="notifications"></div>
-  <div class="calendar-container">
+{% block dashboard %}
+  <div class="calendar-container" id="calendar-container">
     <h1>Welcome, {{ user.username }}!</h1>
     <div id="calendar"></div>
     <button onclick="checkInToday()" class="checkin-button">
       Check In Today
     </button>
   </div>
+
+  {# profile #}
+  <div id="profile">
+  <h2>My Profile</h2>
+  <!-- Watchlist -->
+  <section>
+    <h3>Watchlist ({{ stats.watchlist_count }})</h3>
+    {% if watchlist %}
+    <ul>
+      {% for item in watchlist %}
+      <li>
+        {{ item.company_name }}
+        <small>added on {{ item.added_at.strftime("%Y-%m-%d") }}</small>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p>You haven’t added any companies yet.</p>
+    {% endif %}
+  </section>
+  </div>
+
+  {# application logs #}
+  <div id="app-logs">
+  <!-- Application Logs -->
+  <section style="margin-top: 2rem">
+    <h3>Application Logs ({{ stats.application_count }})</h3>
+    {% if application_logs %}
+    <table>
+      <thead>
+        <tr>
+          <th>Company</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Date Applied</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for log in application_logs %}
+        <tr>
+          <td>{{ log.company }}</td>
+          <td>{{ log.role }}</td>
+          <td>{{ log.status }}</td>
+          <td>{{ log.date_applied.strftime("%Y-%m-%d") }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p>No applications logged yet.</p>
+    {% endif %}
+  </section>
+  </div>
+
+  <!-- quick Stats -->
+  <div id="quick-stats">
+  <section style="margin-top: 2rem">
+    <h3>Quick Stats</h3>
+    <ul>
+      <li>Total in Watchlist: {{ stats.watchlist_count }}</li>
+      <li>Total Applications: {{ stats.application_count }}</li>
+      <li>Points: {{stats.points}}</li>
+    </ul>
+  </section>
+  </div>
+
+  {# reminders #}
+  <div id="reminders"></div>
 {% endblock %}
 
 {% block scripts %}
@@ -131,7 +198,6 @@
       console.log("Error checking notifications:", err);
     }
   }
-
   function showNotifications(items) {
     const container = document.getElementById("notifications");
     items.forEach(item => {
@@ -149,18 +215,25 @@
     });
   }
 
-  // function for check-in button
   async function checkInToday() {
-    const res = await fetch("/api/checkin", { method: "POST" });
-    document.querySelector(".checkin-button").disabled = true;
-    if (res.ok) {
-      alert("Checked in!");
-      if (window.calendar) calendar.refetchEvents();
-    } else {
-      const data = await res.json();
-      alert(data.message || "Check‑in failed.");
-    }
+  const res = await fetch("/api/checkin", { method: "POST" });
+  document.querySelector(".checkin-button").disabled = true;
+
+  if (res.ok) {
+    const data = await res.json();
+    alert(`Check-in successful! You now have ${data.points} points.`);
+
+    // ✅ update the "Points" line in Quick Stats
+    document.querySelector("#quick-stats li:last-child").textContent =
+      `Points: ${data.points}`;
+
+    if (window.calendar) calendar.refetchEvents();
+  } else {
+    const data = await res.json();
+    alert(data.message || "Check‑in failed.");
   }
+}
+
 
   document.addEventListener("DOMContentLoaded", () => {
     const calendarEl = document.getElementById("calendar");

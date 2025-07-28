@@ -29,8 +29,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "app", "templates"))
 router = APIRouter()
 
-current_year = datetime.now().year
-
 
 # ___ APP Home Page ____________________________________________________________
 @router.get("/", response_class=HTMLResponse)
@@ -59,14 +57,30 @@ async def dashboard(
         for c in user_checkins
     ]
 
+    watchlist = db.query(WatchlistItem).filter(WatchlistItem.user_id == user.id).all()
+    application_logs = (
+        db.query(ApplicationLog)
+        .filter(ApplicationLog.user_id == user.id)
+        .order_by(ApplicationLog.date_applied.desc())
+        .all()
+    )
+    stats = {
+        "watchlist_count": len(watchlist),
+        "application_count": len(application_logs),
+        "points": user.points,
+    }
+
     return templates.TemplateResponse(
         "dashboard.html",
         {
             "request": request,
             "user": user,
             "checkins": checkin_dicts,
-            "current_year": current_year,
+            "current_year": datetime.now().year,
             "dashboard": 1,
+            "watchlist": watchlist,
+            "application_logs": application_logs,
+            "stats": stats,
         },
     )
 
@@ -143,58 +157,27 @@ async def checkins(
 
 
 # ─── REMINDERS ────────────────────────────────────────────────────────────────
-@router.get("/reminders", response_class=HTMLResponse)
-async def reminders(
-    request: Request,
-    db: Session = Depends(get_db),
-    user: User = Depends(get_current_user),
-):
-    items = (
-        db.query(Reminder)
-        .filter(Reminder.user_id == user.id)
-        .order_by(Reminder.due_date.asc())
-        .all()
-    )
-    return templates.TemplateResponse(
-        "reminders.html",
-        {
-            "request": request,
-            "user": user,
-            "reminders": items,
-            "current_year": datetime.now().year,
-        },
-    )
-
-
-# ─── PROFILE ──────────────────────────────────────────────────────────────────
-@router.get("/profile", response_class=HTMLResponse)
-async def profile(
-    request: Request,
-    db: Session = Depends(get_db),
-    user: User = Depends(get_current_user),
-):
-    watchlist = db.query(WatchlistItem).filter(WatchlistItem.user_id == user.id).all()
-    application_logs = (
-        db.query(ApplicationLog)
-        .filter(ApplicationLog.user_id == user.id)
-        .order_by(ApplicationLog.date_applied.desc())
-        .all()
-    )
-    stats = {
-        "watchlist_count": len(watchlist),
-        "application_count": len(application_logs),
-    }
-    return templates.TemplateResponse(
-        "profile.html",
-        {
-            "request": request,
-            "user": user,
-            "watchlist": watchlist,
-            "application_logs": application_logs,
-            "stats": stats,
-            "current_year": datetime.now().year,
-        },
-    )
+# @router.get("/reminders", response_class=HTMLResponse)
+# async def reminders(
+#     request: Request,
+#     db: Session = Depends(get_db),
+#     user: User = Depends(get_current_user),
+# ):
+#     items = (
+#         db.query(Reminder)
+#         .filter(Reminder.user_id == user.id)
+#         .order_by(Reminder.due_date.asc())
+#         .all()
+#     )
+#     return templates.TemplateResponse(
+#         "reminders.html",
+#         {
+#             "request": request,
+#             "user": user,
+#             "reminders": items,
+#             "current_year": datetime.now().year,
+#         },
+#     )
 
 
 # ─── AUTH (Register / Login / Logout) ─────────────────────────────────────────
@@ -479,7 +462,7 @@ async def checkin_today(
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    today = datetime.utcnow().date()
+    today = datetime.now(timezone.utc).date()
     exists = (
         db.query(CheckIn)
         .filter(CheckIn.user_id == user.id)
@@ -490,6 +473,9 @@ async def checkin_today(
         return JSONResponse(content={"message": "Already checked in"}, status_code=400)
 
     new_checkin = CheckIn(user_id=user.id, date=datetime.now(timezone.utc))
+    db_user = db.query(User).filter(User.id == user.id).first()
+    db_user.points += 2
+
     db.add(new_checkin)
     db.commit()
-    return {"message": "Check-in successful"}
+    return JSONResponse({"message": "Check-in successful", "points": db_user.points})

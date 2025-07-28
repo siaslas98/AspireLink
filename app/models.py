@@ -20,6 +20,7 @@ class User(Base):
     email = Column(String, nullable=False, unique=True)
     password_hash = Column(String, nullable=False)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    points = Column(Integer, default=0)
 
     # relationships
     watchlist = relationship(
