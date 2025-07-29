@@ -109,11 +109,11 @@ async def get_notifications(
         db.query(Internship)
         .filter(or_(*conditions))
         .filter(Internship.active == True)
-        .filter(Internship.date_posted >= cast(yesterday, String))  # this was missing
         .order_by(Internship.date_posted.desc())
         .limit(10)
         .all()
     )
+    # .filter(Internship.date_posted >= yesterday)  # this was missing
 
     # Format response
     notifications = []
@@ -370,6 +370,7 @@ async def show_matching_internships(
         matched_internships = (
             db.query(Internship)
             .filter(or_(*conditions))
+            .filter(Internship.active == True)
             .order_by(Internship.date_posted.desc())
             .all()
         )
@@ -439,6 +440,9 @@ async def apply_internship(
         )
 
         db.add(new_log)
+        # Increment user points for logging an application
+        db_user = db.query(User).filter(User.id == user.id).first()
+        db_user.points += 5
         db.commit()
         db.refresh(new_log)  # Refresh to get the updated object
 

@@ -17,6 +17,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    scroll-margin-top: 100px;
   }
 
   /* toolbar layout: left buttons, centered title, right button */
@@ -89,10 +90,53 @@
     opacity: 0.6;
     cursor: default;
   }
+
+    #notifications {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    width: 320px;
+    z-index: 1000;
+  }
+
+  .notification {
+    background-color: #2a2a2a;
+    border-left: 4px solid #7cc4b1;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    color: #d3f3ee;
+    font-size: 0.95rem;
+    line-height: 1.4;
+  }
+
+  .notification-content a {
+    color: #7cc4b1;
+    text-decoration: underline;
+    display: inline-block;
+    margin-top: 0.5rem;
+    font-weight: 500;
+  }
+
+  .notification-content button {
+    float: right;
+    background: none;
+    border: none;
+    color: #d3f3ee90;
+    font-size: 1.1rem;
+    cursor: pointer;
+    margin-left: 0.5rem;
+  }
+  .notification-content button:hover {
+    color: #fcd3de;
+  }
 </style>
 {% endblock %}
 
 {% block dashboard %}
+  <div id="notifications" class="notifications-container"></div>
+
   <div class="calendar-container" id="calendar-container">
     <h1>Welcome, {{ user.username }}!</h1>
     <div id="calendar"></div>
@@ -167,7 +211,11 @@
   </div>
 
   {# reminders #}
-  <div id="reminders"></div>
+  <div id="reminders">
+  <section style="margin-top: 2rem">
+    <h3>Reminders</h3>
+  </section>
+  </div>
 {% endblock %}
 
 {% block scripts %}
@@ -179,7 +227,9 @@
 
   async function checkNotifications() {
     try {
-      const res = await fetch("/api/notifications");
+      const res = await fetch("/api/notifications", {
+      credentials: "include",
+      });
       const data = await res.json();
       if (data.new_internships?.length) {
         const newOnes = data.new_internships.filter(
@@ -207,7 +257,6 @@
         <strong>New Internship!</strong><br>
         <strong>${item.company}</strong> - ${item.role}<br>
         <small>${item.location || "Remote"}</small>
-        ${item.link ? `<a href="${item.link}" target="_blank">Apply</a>` : ""}
         <button onclick="this.parentElement.parentElement.remove()">×</button>
       </div>`;
       container.appendChild(n);

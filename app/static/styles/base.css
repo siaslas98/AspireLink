@@ -331,7 +331,8 @@ section li {
 
 #profile,
 #app-logs,
-#quick-stats {
+#quick-stats,
+#reminders {
   width: 45%;
   margin: 0 auto;
 }

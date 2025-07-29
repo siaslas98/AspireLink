@@ -28,13 +28,9 @@
         {% if user %}
           <li><a href="{{ request.url_for('dashboard') }}">Dashboard</a></li>
           <li>
-            <a href="{{ request.url_for('show_matching_internships') }}"
-              >Internships</a
-            >
+            <a href="{{ request.url_for('show_matching_internships') }}">Internships</a>
           </li>
-          <li><a href="{{ request.url_for('display_watchlist') }}"
-              >Watchlist</a
-            ></li>
+          <li><a href="{{ request.url_for('display_watchlist') }}">Watchlist</a></li>
           {% if dashboard %}
             <li><a href="#calendar-container">Check‑Ins</a></li>
             <li><a href="#reminders">Reminders</a></li>
