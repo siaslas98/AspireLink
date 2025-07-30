@@ -3,7 +3,7 @@
 
 {% block head_extra %}
 <style>
-  /* hide FullCalendar’s internal scrollbars */
+  /* hide FullCalendar's internal scrollbars */
   #calendar .fc-scroller-liquid,
   #calendar .fc-scrollgrid-liquid {
     overflow-y: hidden !important;
@@ -131,6 +131,74 @@
   .notification-content button:hover {
     color: #fcd3de;
   }
+
+  /* Badge Styling */
+  .badges-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .badge-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background-color: #2a2a2a;
+    border-radius: 8px;
+    border-left: 4px solid #7cc4b1;
+    gap: 1rem;
+  }
+
+  .badge-emoji {
+    font-size: 2rem;
+    flex-shrink: 0;
+  }
+
+  .badge-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .badge-info strong {
+    color: #d3f3ee;
+    font-size: 1.1rem;
+  }
+
+  .badge-info small {
+    color: #d3f3ee80;
+    font-size: 0.9rem;
+  }
+
+  .next-badge {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background-color: #1e1e1e;
+    border-radius: 8px;
+    border: 2px solid #7cc4b140;
+  }
+
+  .next-badge h4 {
+    margin-bottom: 0.5rem;
+    color: #7cc4b1;
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 8px;
+    background-color: #3a3a3a;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 0.5rem 0;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background-color: #7cc4b1;
+    transition: width 0.3s ease;
+    border-radius: 4px;
+  }
 </style>
 {% endblock %}
 
@@ -148,6 +216,42 @@
   {# profile #}
   <div id="profile">
   <h2>My Profile</h2>
+  
+  <!-- Badges -->
+  <section>
+    <h3>My Badges ({{ user_badges|length }})</h3>
+    {% if user_badges %}
+    <div class="badges-container">
+      {% for badge in user_badges %}
+      <div class="badge-item">
+        <span class="badge-emoji">{{ badge.emoji }}</span>
+        <div class="badge-info">
+          <strong>{{ badge.badge_name }}</strong>
+          <small>{{ badge.badge_description }}</small>
+          <small>Earned: {{ badge.earned_at.strftime("%Y-%m-%d") }}</small>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p>No badges earned yet. Keep earning points to unlock badges!</p>
+    {% endif %}
+    
+    <!-- Next Badge Progress -->
+    {% set next_badge = (all_badge_info | selectattr('points', 'gt', user.points) | first) %}
+    
+    {% if next_badge %}
+    <div class="next-badge">
+      <h4>Next Badge: {{ next_badge.emoji }} {{ next_badge.name }}</h4>
+      <p>{{ next_badge.description }}</p>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: {{ (user.points / next_badge.points * 100)|round(1) }}%"></div>
+      </div>
+      <small>{{ user.points }} / {{ next_badge.points }} points</small>
+    </div>
+    {% endif %}
+  </section>
+  
   <!-- Watchlist -->
   <section>
     <h3>Watchlist ({{ stats.watchlist_count }})</h3>
@@ -161,7 +265,7 @@
       {% endfor %}
     </ul>
     {% else %}
-    <p>You haven’t added any companies yet.</p>
+    <p>You haven't added any companies yet.</p>
     {% endif %}
   </section>
   </div>
@@ -270,13 +374,26 @@
 
   if (res.ok) {
     const data = await res.json();
-    alert(`Check-in successful! You now have ${data.points} points.`);
+    let alertMessage = `Check-in successful! You now have ${data.points} points.`;
+    
+    // Check if new badges were earned
+    if (data.new_badges && data.new_badges.length > 0) {
+      const badgeNames = data.new_badges.map(badge => `${badge.emoji} ${badge.name}`).join(', ');
+      alertMessage += `\n\n🎉 New badge(s) earned: ${badgeNames}!`;
+    }
+    
+    alert(alertMessage);
 
     // ✅ update the "Points" line in Quick Stats
     document.querySelector("#quick-stats li:last-child").textContent =
       `Points: ${data.points}`;
 
     if (window.calendar) calendar.refetchEvents();
+    
+    // Reload page to show new badges
+    if (data.new_badges && data.new_badges.length > 0) {
+      setTimeout(() => window.location.reload(), 2000);
+    }
   } else {
     const data = await res.json();
     alert(data.message || "Check‑in failed.");

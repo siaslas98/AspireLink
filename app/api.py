@@ -16,6 +16,7 @@ from app.models import (
     ApplicationLog,
     CheckIn,
     Reminder,
+    Badge,
 )
 
 from app.auth import (
@@ -28,6 +29,64 @@ from app.auth import (
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "app", "templates"))
 router = APIRouter()
+
+
+# ─── BADGE HELPER FUNCTIONS ──────────────────────────────────────────────────
+def get_badge_info(points: int):
+    """Get badge information based on points."""
+    badges = [
+        {"name": "Getting Started", "description": "Earned your first 10 points", "points": 10, "emoji": "🌱"},
+        {"name": "On Track", "description": "Reached 20 points", "points": 20, "emoji": "🚀"},
+        {"name": "Consistent", "description": "Reached 30 points", "points": 30, "emoji": "⭐"},
+        {"name": "Dedicated", "description": "Reached 40 points", "points": 40, "emoji": "💪"},
+        {"name": "Achiever", "description": "Reached 50 points", "points": 50, "emoji": "🏆"},
+        {"name": "Champion", "description": "Reached 60 points", "points": 60, "emoji": "👑"},
+        {"name": "Master", "description": "Reached 70 points", "points": 70, "emoji": "🎯"},
+        {"name": "Legend", "description": "Reached 80 points", "points": 80, "emoji": "💎"},
+        {"name": "Elite", "description": "Reached 90 points", "points": 90, "emoji": "🔥"},
+        {"name": "Ultimate", "description": "Reached 100 points", "points": 100, "emoji": "⚡"},
+    ]
+    
+    # Add more badges for every 10 points beyond 100
+    if points >= 100:
+        extra_badges = (points // 10) - 9  # How many beyond the initial 10
+        for i in range(10, 10 + extra_badges):
+            badge_points = i * 10
+            badges.append({
+                "name": f"Superstar {i-9}",
+                "description": f"Reached {badge_points} points",
+                "points": badge_points,
+                "emoji": "🌟"
+            })
+    
+    return badges
+
+
+def check_and_award_badges(db: Session, user: User):
+    """Check if user has earned new badges and award them."""
+    available_badges = get_badge_info(user.points)
+    
+    # Get already earned badges
+    earned_badges = db.query(Badge).filter(Badge.user_id == user.id).all()
+    earned_points = {badge.points_required for badge in earned_badges}
+    
+    # Find new badges to award
+    new_badges = []
+    for badge_info in available_badges:
+        if badge_info["points"] <= user.points and badge_info["points"] not in earned_points:
+            new_badge = Badge(
+                user_id=user.id,
+                badge_name=badge_info["name"],
+                badge_description=badge_info["description"],
+                points_required=badge_info["points"]
+            )
+            db.add(new_badge)
+            new_badges.append(badge_info)
+    
+    if new_badges:
+        db.commit()
+    
+    return new_badges
 
 
 # ___ APP Home Page ____________________________________________________________
@@ -64,6 +123,34 @@ async def dashboard(
         .order_by(ApplicationLog.date_applied.desc())
         .all()
     )
+    
+    # Get user badges
+    user_badges = (
+        db.query(Badge)
+        .filter(Badge.user_id == user.id)
+        .order_by(Badge.earned_at.desc())
+        .all()
+    )
+    
+    # Get available badge info for progress display
+    all_badge_info = get_badge_info(user.points)
+    
+    # Create a mapping of points to emoji for earned badges
+    badge_info_map = {badge["points"]: badge for badge in all_badge_info}
+    
+    # Add emoji info to user badges
+    user_badges_with_emoji = []
+    for badge in user_badges:
+        badge_dict = {
+            "id": badge.id,
+            "badge_name": badge.badge_name,
+            "badge_description": badge.badge_description,
+            "points_required": badge.points_required,
+            "earned_at": badge.earned_at,
+            "emoji": badge_info_map.get(badge.points_required, {}).get("emoji", "🏅")
+        }
+        user_badges_with_emoji.append(badge_dict)
+    
     stats = {
         "watchlist_count": len(watchlist),
         "application_count": len(application_logs),
@@ -81,6 +168,8 @@ async def dashboard(
             "watchlist": watchlist,
             "application_logs": application_logs,
             "stats": stats,
+            "user_badges": user_badges_with_emoji,
+            "all_badge_info": all_badge_info,
         },
     )
 
@@ -364,9 +453,9 @@ async def show_matching_internships(
     names = [c[0] for c in company_names]
     if not names:
         matched_internships = []
-
+        watchlist_stats = []
     else:
-        conditions = [Internship.company.ilike(name) for name in names]
+        conditions = [Internship.company.ilike(f'%{name}%') for name in names]
         matched_internships = (
             db.query(Internship)
             .filter(or_(*conditions))
@@ -374,12 +463,25 @@ async def show_matching_internships(
             .order_by(Internship.date_posted.desc())
             .all()
         )
+        
+        # Generate statistics for each watchlist company
+        watchlist_stats = []
+        for name in names:
+            count = (
+                db.query(Internship)
+                .filter(Internship.company.ilike(f'%{name}%'))
+                .filter(Internship.active == True)
+                .count()
+            )
+            watchlist_stats.append({"company": name, "count": count})
+    
     return templates.TemplateResponse(
         "internship.html",
         {
             "request": request,
             "user": user,
             "internships": matched_internships,
+            "watchlist_stats": watchlist_stats,
             "current_year": datetime.now().year,
         },
     )
@@ -443,6 +545,10 @@ async def apply_internship(
         # Increment user points for logging an application
         db_user = db.query(User).filter(User.id == user.id).first()
         db_user.points += 5
+        
+        # Check for new badges
+        new_badges = check_and_award_badges(db, db_user)
+        
         db.commit()
         db.refresh(new_log)  # Refresh to get the updated object
 
@@ -480,6 +586,14 @@ async def checkin_today(
     db_user = db.query(User).filter(User.id == user.id).first()
     db_user.points += 2
 
+    # Check for new badges
+    new_badges = check_and_award_badges(db, db_user)
+
     db.add(new_checkin)
     db.commit()
-    return JSONResponse({"message": "Check-in successful", "points": db_user.points})
+    
+    response_data = {"message": "Check-in successful", "points": db_user.points}
+    if new_badges:
+        response_data["new_badges"] = new_badges
+    
+    return JSONResponse(response_data)

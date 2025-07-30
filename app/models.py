@@ -35,6 +35,9 @@ class User(Base):
     reminders = relationship(
         "Reminder", back_populates="user", cascade="all, delete-orphan"
     )
+    badges = relationship(
+        "Badge", back_populates="user", cascade="all, delete-orphan"
+    )
 
 
 class Internship(Base):
@@ -99,3 +102,16 @@ class Reminder(Base):
     due_date = Column(DateTime, nullable=False)
 
     user = relationship("User", back_populates="reminders")
+
+
+class Badge(Base):
+    __tablename__ = "badges"
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    badge_name = Column(String, nullable=False)
+    badge_description = Column(String, nullable=False)
+    points_required = Column(Integer, nullable=False)
+    earned_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+    user = relationship("User", back_populates="badges")

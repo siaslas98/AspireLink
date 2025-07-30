@@ -1,6 +1,23 @@
 {% extends "base.html" %} {% block content %}
 <h2>Matching Internships</h2>
 
+<!-- Watchlist Status Summary -->
+{% if watchlist_stats %}
+<div style="margin: 20px 0; padding: 15px; background-color: #2a2a2a; border-radius: 6px; border-left: 4px solid #7cc4b1;">
+  <h4 style="margin-top: 0; color: #d3f3ee;">Your Watchlist Status:</h4>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+    {% for stat in watchlist_stats %}
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background-color: #1e1e1e; border-radius: 4px; {% if stat.count > 0 %}border-left: 3px solid #7cc4b1;{% else %}border-left: 3px solid #555;{% endif %}">
+      <span style="font-weight: 500; color: #d3f3ee;">{{ stat.company }}</span>
+      <span style="{% if stat.count > 0 %}color: #7cc4b1; font-weight: bold;{% else %}color: #999;{% endif %}">
+        {{ stat.count }} {% if stat.count == 1 %}match{% else %}matches{% endif %}
+      </span>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
 {% if request.query_params.get('success') == 'applied' %}
 <div
   style="
@@ -117,7 +134,14 @@
   {% endfor %}
 </ul>
 {% else %}
-<p>No internships found matching your watchlist yet.</p>
+<p style="color: #d3f3ee;">No internships found matching your watchlist companies yet.</p>
+<p><small style="color: #d3f3ee80;">Note: We're currently looking for internships from companies in your watchlist. If you don't see matches, it might mean:</small></p>
+<ul style="font-size: 0.9em; color: #d3f3ee60; margin-left: 20px;">
+  <li>Those companies don't have current internship openings</li>
+  <li>The internships haven't been posted yet for this season</li>
+  <li>There might be slight differences in company names</li>
+</ul>
+<p><small style="color: #7cc4b1;">Keep checking back as new internships are added regularly!</small></p>
 {% endif %}
 
 <script>
