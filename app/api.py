@@ -151,6 +151,14 @@ async def dashboard(
         }
         user_badges_with_emoji.append(badge_dict)
     
+    # Get user reminders
+    reminders = (
+        db.query(Reminder)
+        .filter(Reminder.user_id == user.id)
+        .order_by(Reminder.due_date.asc())
+        .all()
+    )
+    
     stats = {
         "watchlist_count": len(watchlist),
         "application_count": len(application_logs),
@@ -170,6 +178,9 @@ async def dashboard(
             "stats": stats,
             "user_badges": user_badges_with_emoji,
             "all_badge_info": all_badge_info,
+            "reminders": reminders,
+            "today": datetime.now().date(),
+            "timedelta": timedelta,
         },
     )
 
@@ -246,27 +257,136 @@ async def checkins(
 
 
 # ─── REMINDERS ────────────────────────────────────────────────────────────────
-# @router.get("/reminders", response_class=HTMLResponse)
-# async def reminders(
-#     request: Request,
-#     db: Session = Depends(get_db),
-#     user: User = Depends(get_current_user),
-# ):
-#     items = (
-#         db.query(Reminder)
-#         .filter(Reminder.user_id == user.id)
-#         .order_by(Reminder.due_date.asc())
-#         .all()
-#     )
-#     return templates.TemplateResponse(
-#         "reminders.html",
-#         {
-#             "request": request,
-#             "user": user,
-#             "reminders": items,
-#             "current_year": datetime.now().year,
-#         },
-#     )
+@router.get("/reminders", response_class=HTMLResponse)
+async def reminders(
+    request: Request,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    items = (
+        db.query(Reminder)
+        .filter(Reminder.user_id == user.id)
+        .order_by(Reminder.due_date.asc())
+        .all()
+    )
+    return templates.TemplateResponse(
+        "reminders.html",
+        {
+            "request": request,
+            "user": user,
+            "reminders": items,
+            "current_year": datetime.now().year,
+        },
+    )
+
+
+@router.post("/add_reminder")
+async def add_reminder(
+    request: Request,
+    company: str = Form(...),
+    role: str = Form(...),
+    due_date: str = Form(...),
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    try:
+        # Validate inputs
+        if not company or company.strip() == "":
+            return RedirectResponse(url="/dashboard?error=empty_company", status_code=303)
+        if not role or role.strip() == "":
+            return RedirectResponse(url="/dashboard?error=empty_role", status_code=303)
+        if not due_date or due_date.strip() == "":
+            return RedirectResponse(url="/dashboard?error=empty_date", status_code=303)
+            
+        # Parse and validate the date
+        due_date_obj = datetime.strptime(due_date.strip(), "%Y-%m-%d").date()
+        
+        # Check if the date is not in the past
+        today = datetime.now().date()
+        if due_date_obj < today:
+            return RedirectResponse(url="/dashboard?error=past_date", status_code=303)
+        
+        # Check for duplicate reminders (same company + role + user)
+        existing_reminder = (
+            db.query(Reminder)
+            .filter(
+                Reminder.user_id == user.id,
+                Reminder.company.ilike(company.strip()),
+                Reminder.role.ilike(role.strip())
+            )
+            .first()
+        )
+        
+        if existing_reminder:
+            return RedirectResponse(url="/dashboard?error=duplicate_reminder", status_code=303)
+        
+        # Create the new reminder
+        new_reminder = Reminder(
+            user_id=user.id,
+            company=company.strip(),
+            role=role.strip(),
+            due_date=due_date_obj,
+            description=f"Application deadline for {role.strip()} at {company.strip()}"
+        )
+        
+        db.add(new_reminder)
+        
+        # Award points for setting a reminder
+        db_user = db.query(User).filter(User.id == user.id).first()
+        db_user.points += 1  # Small point reward 
+        
+        # Check for new badges
+        new_badges = check_and_award_badges(db, db_user)
+        
+        db.commit()
+        db.refresh(new_reminder)
+        
+        success_message = "reminder_added"
+        if new_badges:
+            success_message += "&new_badges=true"
+            
+        return RedirectResponse(url=f"/dashboard?success={success_message}", status_code=303)
+        
+    except ValueError as e:
+        print(f"Date parsing error: {e}")
+        return RedirectResponse(url="/dashboard?error=invalid_date", status_code=303)
+    except Exception as e:
+        print(f"Error adding reminder: {e}")
+        db.rollback()
+        return RedirectResponse(url="/dashboard?error=database_error", status_code=303)
+
+
+@router.post("/complete_reminder")
+async def complete_reminder(
+    request: Request,
+    reminder_id: int = Form(...),
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    reminder = (
+        db.query(Reminder)
+        .filter(Reminder.id == reminder_id, Reminder.user_id == user.id)
+        .first()
+    )
+    
+    if reminder:
+        db.delete(reminder)
+        # Award points for completing a reminder
+        db_user = db.query(User).filter(User.id == user.id).first()
+        db_user.points += 2  # Points for follow-through
+        
+        # Check for new badges
+        new_badges = check_and_award_badges(db, db_user)
+        
+        db.commit()
+        
+        success_message = "reminder_completed"
+        if new_badges:
+            success_message += "&new_badges=true"
+            
+        return RedirectResponse(url=f"/dashboard?success={success_message}", status_code=303)
+    
+    return RedirectResponse(url="/dashboard", status_code=303)
 
 
 # ─── AUTH (Register / Login / Logout) ─────────────────────────────────────────
