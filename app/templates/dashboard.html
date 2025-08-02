@@ -91,7 +91,7 @@
     cursor: default;
   }
 
-    #notifications {
+  #notifications {
     position: fixed;
     top: 1rem;
     right: 1rem;
@@ -198,6 +198,137 @@
     background-color: #7cc4b1;
     transition: width 0.3s ease;
     border-radius: 4px;
+  }
+
+  /* Reminder form styling - consistent with rest of app */
+  .reminder-form {
+    background-color: #2a2a2a;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+  }
+
+  .reminder-form h4 {
+    margin-bottom: 1rem;
+    color: #7cc4b1;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    color: #d3f3ee;
+  }
+
+  .form-group input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #444;
+    background-color: #1e1e1e;
+    color: #fff;
+    border-radius: 4px;
+    font-size: 1rem;
+  }
+
+  .form-submit {
+    padding: 0.75rem 2rem;
+    background-color: #7cc4b1;
+    color: #1e1e1e;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+  }
+
+  /* Reminder list styling - consistent with badges */
+  .reminders-list {
+    background-color: #2a2a2a;
+    padding: 1.5rem;
+    border-radius: 8px;
+  }
+
+  .reminders-list h4 {
+    margin-bottom: 1rem;
+    color: #7cc4b1;
+  }
+
+  .reminder-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background-color: #1e1e1e;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    gap: 1rem;
+  }
+
+  .reminder-item.overdue {
+    border-left: 4px solid #ff6b6b;
+  }
+
+  .reminder-item.due-soon {
+    border-left: 4px solid #ffd93d;
+  }
+
+  .reminder-item.upcoming {
+    border-left: 4px solid #7cc4b1;
+  }
+
+  .reminder-info {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 2fr 2fr 1.5fr 1fr;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .reminder-company {
+    color: #d3f3ee;
+    font-weight: 500;
+  }
+
+  .reminder-role {
+    color: #d3f3ee;
+  }
+
+  .reminder-date {
+    color: #d3f3ee;
+  }
+
+  .reminder-status.overdue {
+    color: #ff6b6b;
+    font-weight: bold;
+    font-size: 0.9rem;
+  }
+
+  .reminder-status.due-soon {
+    color: #ffd93d;
+    font-weight: bold;
+    font-size: 0.9rem;
+  }
+
+  .reminder-status.upcoming {
+    color: #7cc4b1;
+    font-size: 0.9rem;
+  }
+
+  .reminder-action button {
+    background-color: #7cc4b1;
+    color: #1e1e1e;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
   }
 </style>
 {% endblock %}
@@ -316,9 +447,82 @@
 
   {# reminders #}
   <div id="reminders">
-  <section style="margin-top: 2rem">
-    <h3>Reminders</h3>
-  </section>
+    <section style="margin-top: 2rem">
+      <h3>Application Reminders</h3>
+      
+      <!-- Add New Reminder Form -->
+      <div class="reminder-form">
+        <h4>Add New Reminder</h4>
+        <form action="/add_reminder" method="post">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="company">Company *</label>
+              <input type="text" name="company" id="company" required placeholder="e.g., Google">
+            </div>
+            <div class="form-group">
+              <label for="role">Role *</label>
+              <input type="text" name="role" id="role" required placeholder="e.g., Software Engineer Intern">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="due_date">Application Deadline *</label>
+              <input type="date" name="due_date" id="due_date" required>
+            </div>
+            <div class="form-group" style="align-self: end;">
+              <button type="submit" class="form-submit">Add Reminder</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Current Reminders -->
+      <div class="reminders-list">
+        <h4>My Reminders ({{ reminders|length }})</h4>
+        
+        {% if reminders %}
+          {% for reminder in reminders %}
+          <div class="reminder-item 
+                      {% if reminder.due_date <= today %}overdue
+                      {% elif reminder.due_date <= (today + timedelta(days=3)) %}due-soon
+                      {% else %}upcoming{% endif %}">
+            
+            <div class="reminder-info">
+              <div class="reminder-company">{{ reminder.company }}</div>
+              <div class="reminder-role">{{ reminder.role }}</div>
+              <div class="reminder-date">{{ reminder.due_date.strftime("%Y-%m-%d") }}</div>
+              <div class="reminder-status 
+                          {% if reminder.due_date <= today %}overdue
+                          {% elif reminder.due_date <= (today + timedelta(days=3)) %}due-soon
+                          {% else %}upcoming{% endif %}">
+                {% if reminder.due_date <= today %}
+                  OVERDUE
+                {% elif reminder.due_date <= (today + timedelta(days=3)) %}
+                  DUE SOON
+                {% else %}
+                  Upcoming
+                {% endif %}
+              </div>
+            </div>
+            
+            <div class="reminder-action">
+              <form action="/complete_reminder" method="post">
+                <input type="hidden" name="reminder_id" value="{{ reminder.id }}">
+                <button type="submit" onclick="return confirm('Mark this reminder as complete?')">
+                  Complete
+                </button>
+              </form>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div style="text-align: center; padding: 2rem; color: #d3f3ee80;">
+            <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">📅 No reminders set yet</p>
+            <p style="font-size: 0.9rem;">Add a reminder above to track your application deadlines!</p>
+          </div>
+        {% endif %}
+      </div>
+    </section>
   </div>
 {% endblock %}
 
@@ -352,6 +556,7 @@
       console.log("Error checking notifications:", err);
     }
   }
+  
   function showNotifications(items) {
     const container = document.getElementById("notifications");
     items.forEach(item => {
@@ -369,39 +574,33 @@
   }
 
   async function checkInToday() {
-  const res = await fetch("/api/checkin", { method: "POST" });
-  document.querySelector(".checkin-button").disabled = true;
+    const res = await fetch("/api/checkin", { method: "POST" });
+    document.querySelector(".checkin-button").disabled = true;
 
-  if (res.ok) {
-    const data = await res.json();
-    let alertMessage = `Check-in successful! You now have ${data.points} points.`;
-    
-    // Check if new badges were earned
-    if (data.new_badges && data.new_badges.length > 0) {
-      const badgeNames = data.new_badges.map(badge => `${badge.emoji} ${badge.name}`).join(', ');
-      alertMessage += `\n\n🎉 New badge(s) earned: ${badgeNames}!`;
+    if (res.ok) {
+      const data = await res.json();
+      let alertMessage = `Check-in successful! You now have ${data.points} points.`;
+      
+      if (data.new_badges && data.new_badges.length > 0) {
+        const badgeNames = data.new_badges.map(badge => `${badge.emoji} ${badge.name}`).join(', ');
+        alertMessage += `\n\n🎉 New badge(s) earned: ${badgeNames}!`;
+      }
+      
+      alert(alertMessage);
+      document.querySelector("#quick-stats li:last-child").textContent = `Points: ${data.points}`;
+
+      if (window.calendar) calendar.refetchEvents();
+      
+      if (data.new_badges && data.new_badges.length > 0) {
+        setTimeout(() => window.location.reload(), 2000);
+      }
+    } else {
+      const data = await res.json();
+      alert(data.message || "Check‑in failed.");
     }
-    
-    alert(alertMessage);
-
-    // ✅ update the "Points" line in Quick Stats
-    document.querySelector("#quick-stats li:last-child").textContent =
-      `Points: ${data.points}`;
-
-    if (window.calendar) calendar.refetchEvents();
-    
-    // Reload page to show new badges
-    if (data.new_badges && data.new_badges.length > 0) {
-      setTimeout(() => window.location.reload(), 2000);
-    }
-  } else {
-    const data = await res.json();
-    alert(data.message || "Check‑in failed.");
   }
-}
 
-
-  document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener('DOMContentLoaded', function() {
     const calendarEl = document.getElementById("calendar");
     window.calendar = new FullCalendar.Calendar(calendarEl, {
       initialView: "dayGridMonth",
@@ -422,6 +621,11 @@
       }))
     });
     calendar.render();
+
+    // Set minimum date to today for reminder form
+    const dueDateInput = document.getElementById('due_date');
+    const today = new Date().toISOString().split('T')[0];
+    dueDateInput.min = today;
 
     checkNotifications();
     setInterval(checkNotifications, 30000);
