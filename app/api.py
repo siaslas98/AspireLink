@@ -35,57 +35,112 @@ router = APIRouter()
 def get_badge_info(points: int):
     """Get badge information based on points."""
     badges = [
-        {"name": "Getting Started", "description": "Earned your first 10 points", "points": 10, "emoji": "🌱"},
-        {"name": "On Track", "description": "Reached 20 points", "points": 20, "emoji": "🚀"},
-        {"name": "Consistent", "description": "Reached 30 points", "points": 30, "emoji": "⭐"},
-        {"name": "Dedicated", "description": "Reached 40 points", "points": 40, "emoji": "💪"},
-        {"name": "Achiever", "description": "Reached 50 points", "points": 50, "emoji": "🏆"},
-        {"name": "Champion", "description": "Reached 60 points", "points": 60, "emoji": "👑"},
-        {"name": "Master", "description": "Reached 70 points", "points": 70, "emoji": "🎯"},
-        {"name": "Legend", "description": "Reached 80 points", "points": 80, "emoji": "💎"},
-        {"name": "Elite", "description": "Reached 90 points", "points": 90, "emoji": "🔥"},
-        {"name": "Ultimate", "description": "Reached 100 points", "points": 100, "emoji": "⚡"},
+        {
+            "name": "Getting Started",
+            "description": "Earned your first 10 points",
+            "points": 10,
+            "emoji": "🌱",
+        },
+        {
+            "name": "On Track",
+            "description": "Reached 20 points",
+            "points": 20,
+            "emoji": "🚀",
+        },
+        {
+            "name": "Consistent",
+            "description": "Reached 30 points",
+            "points": 30,
+            "emoji": "⭐",
+        },
+        {
+            "name": "Dedicated",
+            "description": "Reached 40 points",
+            "points": 40,
+            "emoji": "💪",
+        },
+        {
+            "name": "Achiever",
+            "description": "Reached 50 points",
+            "points": 50,
+            "emoji": "🏆",
+        },
+        {
+            "name": "Champion",
+            "description": "Reached 60 points",
+            "points": 60,
+            "emoji": "👑",
+        },
+        {
+            "name": "Master",
+            "description": "Reached 70 points",
+            "points": 70,
+            "emoji": "🎯",
+        },
+        {
+            "name": "Legend",
+            "description": "Reached 80 points",
+            "points": 80,
+            "emoji": "💎",
+        },
+        {
+            "name": "Elite",
+            "description": "Reached 90 points",
+            "points": 90,
+            "emoji": "🔥",
+        },
+        {
+            "name": "Ultimate",
+            "description": "Reached 100 points",
+            "points": 100,
+            "emoji": "⚡",
+        },
     ]
-    
+
     # Add more badges for every 10 points beyond 100
     if points >= 100:
         extra_badges = (points // 10) - 9  # How many beyond the initial 10
         for i in range(10, 10 + extra_badges):
             badge_points = i * 10
-            badges.append({
-                "name": f"Superstar {i-9}",
-                "description": f"Reached {badge_points} points",
-                "points": badge_points,
-                "emoji": "🌟"
-            })
-    
+            badges.append(
+                {
+                    "name": f"Superstar {i-9}",
+                    "description": f"Reached {badge_points} points",
+                    "points": badge_points,
+                    "emoji": "🌟",
+                }
+            )
+
     return badges
 
 
 def check_and_award_badges(db: Session, user: User):
     """Check if user has earned new badges and award them."""
     available_badges = get_badge_info(user.points)
-    
+
     # Get already earned badges
     earned_badges = db.query(Badge).filter(Badge.user_id == user.id).all()
     earned_points = {badge.points_required for badge in earned_badges}
-    
+
     # Find new badges to award
     new_badges = []
     for badge_info in available_badges:
-        if badge_info["points"] <= user.points and badge_info["points"] not in earned_points:
+        if (
+            badge_info["points"] <= user.points
+            and badge_info["points"] not in earned_points
+        ):
             new_badge = Badge(
                 user_id=user.id,
                 badge_name=badge_info["name"],
                 badge_description=badge_info["description"],
-                points_required=badge_info["points"]
+                points_required=badge_info["points"],
             )
             db.add(new_badge)
             new_badges.append(badge_info)
-    
+
     if new_badges:
         db.commit()
-    
+
     return new_badges
 
 
@@ -123,7 +178,7 @@ async def dashboard(
         .order_by(ApplicationLog.date_applied.desc())
         .all()
     )
-    
+
     # Get user badges
     user_badges = (
         db.query(Badge)
@@ -131,13 +186,13 @@ async def dashboard(
         .order_by(Badge.earned_at.desc())
         .all()
     )
-    
+
     # Get available badge info for progress display
     all_badge_info = get_badge_info(user.points)
-    
+
     # Create a mapping of points to emoji for earned badges
     badge_info_map = {badge["points"]: badge for badge in all_badge_info}
-    
+
     # Add emoji info to user badges
     user_badges_with_emoji = []
     for badge in user_badges:
@@ -147,10 +202,10 @@ async def dashboard(
             "badge_description": badge.badge_description,
             "points_required": badge.points_required,
             "earned_at": badge.earned_at,
-            "emoji": badge_info_map.get(badge.points_required, {}).get("emoji", "🏅")
+            "emoji": badge_info_map.get(badge.points_required, {}).get("emoji", "🏅"),
         }
         user_badges_with_emoji.append(badge_dict)
-    
+
     # Get user reminders
     reminders = (
         db.query(Reminder)
@@ -158,13 +213,14 @@ async def dashboard(
         .order_by(Reminder.due_date.asc())
         .all()
     )
-    
+
     stats = {
         "watchlist_count": len(watchlist),
         "application_count": len(application_logs),
         "points": user.points,
     }
 
+    today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
     return templates.TemplateResponse(
         "dashboard.html",
         {
@@ -179,7 +235,7 @@ async def dashboard(
             "user_badges": user_badges_with_emoji,
             "all_badge_info": all_badge_info,
             "reminders": reminders,
-            "today": datetime.now().date(),
+            "today": today,
             "timedelta": timedelta,
         },
     )
@@ -291,22 +347,21 @@ async def add_reminder(
 ):
     try:
         # Validate inputs
-        if not company or company.strip() == "":
+        if not company.strip():
             return RedirectResponse(url="/dashboard?error=empty_company", status_code=303)
-        if not role or role.strip() == "":
+        if not role.strip():
             return RedirectResponse(url="/dashboard?error=empty_role", status_code=303)
-        if not due_date or due_date.strip() == "":
+        if not due_date.strip():
             return RedirectResponse(url="/dashboard?error=empty_date", status_code=303)
-            
-        # Parse and validate the date
+
+        # Parse date
         due_date_obj = datetime.strptime(due_date.strip(), "%Y-%m-%d").date()
-        
-        # Check if the date is not in the past
-        today = datetime.now().date()
-        if due_date_obj < today:
+
+        # Check not in past
+        if due_date_obj < datetime.now().date():
             return RedirectResponse(url="/dashboard?error=past_date", status_code=303)
-        
-        # Check for duplicate reminders (same company + role + user)
+
+        # Check duplicates
         existing_reminder = (
             db.query(Reminder)
             .filter(
@@ -316,45 +371,41 @@ async def add_reminder(
             )
             .first()
         )
-        
         if existing_reminder:
             return RedirectResponse(url="/dashboard?error=duplicate_reminder", status_code=303)
-        
-        # Create the new reminder
+
+        # Create reminder
         new_reminder = Reminder(
             user_id=user.id,
             company=company.strip(),
             role=role.strip(),
-            due_date=due_date_obj,
-            description=f"Application deadline for {role.strip()} at {company.strip()}"
+            text=f"Application deadline for {role.strip()} at {company.strip()}",
+            due_date=due_date_obj
         )
-        
         db.add(new_reminder)
-        
-        # Award points for setting a reminder
+
+        # Update points
         db_user = db.query(User).filter(User.id == user.id).first()
-        db_user.points += 1  # Small point reward 
-        
-        # Check for new badges
+        db_user.points = (db_user.points or 0) + 1
+
+        # Award badges
         new_badges = check_and_award_badges(db, db_user)
-        
+
         db.commit()
         db.refresh(new_reminder)
-        
+
         success_message = "reminder_added"
         if new_badges:
             success_message += "&new_badges=true"
-            
+
         return RedirectResponse(url=f"/dashboard?success={success_message}", status_code=303)
-        
-    except ValueError as e:
-        print(f"Date parsing error: {e}")
+
+    except ValueError:
         return RedirectResponse(url="/dashboard?error=invalid_date", status_code=303)
     except Exception as e:
         print(f"Error adding reminder: {e}")
         db.rollback()
         return RedirectResponse(url="/dashboard?error=database_error", status_code=303)
-
 
 @router.post("/complete_reminder")
 async def complete_reminder(
@@ -368,24 +419,26 @@ async def complete_reminder(
         .filter(Reminder.id == reminder_id, Reminder.user_id == user.id)
         .first()
     )
-    
+
     if reminder:
         db.delete(reminder)
         # Award points for completing a reminder
         db_user = db.query(User).filter(User.id == user.id).first()
         db_user.points += 2  # Points for follow-through
-        
+
         # Check for new badges
         new_badges = check_and_award_badges(db, db_user)
-        
+
         db.commit()
-        
+
         success_message = "reminder_completed"
         if new_badges:
             success_message += "&new_badges=true"
-            
-        return RedirectResponse(url=f"/dashboard?success={success_message}", status_code=303)
-    
+
+        return RedirectResponse(
+            url=f"/dashboard?success={success_message}", status_code=303
+        )
+
     return RedirectResponse(url="/dashboard", status_code=303)
 
 
@@ -575,7 +628,7 @@ async def show_matching_internships(
         matched_internships = []
         watchlist_stats = []
     else:
-        conditions = [Internship.company.ilike(f'%{name}%') for name in names]
+        conditions = [Internship.company.ilike(f"%{name}%") for name in names]
         matched_internships = (
             db.query(Internship)
             .filter(or_(*conditions))
@@ -583,18 +636,18 @@ async def show_matching_internships(
             .order_by(Internship.date_posted.desc())
             .all()
         )
-        
+
         # Generate statistics for each watchlist company
         watchlist_stats = []
         for name in names:
             count = (
                 db.query(Internship)
-                .filter(Internship.company.ilike(f'%{name}%'))
+                .filter(Internship.company.ilike(f"%{name}%"))
                 .filter(Internship.active == True)
                 .count()
             )
             watchlist_stats.append({"company": name, "count": count})
-    
+
     return templates.TemplateResponse(
         "internship.html",
         {
@@ -665,10 +718,10 @@ async def apply_internship(
         # Increment user points for logging an application
         db_user = db.query(User).filter(User.id == user.id).first()
         db_user.points += 5
-        
+
         # Check for new badges
         new_badges = check_and_award_badges(db, db_user)
-        
+
         db.commit()
         db.refresh(new_log)  # Refresh to get the updated object
 
@@ -711,9 +764,9 @@ async def checkin_today(
 
     db.add(new_checkin)
     db.commit()
-    
+
     response_data = {"message": "Check-in successful", "points": db_user.points}
     if new_badges:
         response_data["new_badges"] = new_badges
-    
+
     return JSONResponse(response_data)

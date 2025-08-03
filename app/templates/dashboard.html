@@ -30,12 +30,14 @@
     border-radius: 6px;
     margin-bottom: 1rem;
   }
+
   .fc .fc-toolbar-chunk:nth-child(2) {
     flex: 1;
     display: flex;
     justify-content: flex-start;
     padding-left: 12rem;
   }
+
   /* toolbar button styling */
   .fc .fc-button {
     background-color: #2e2e2e;
@@ -46,6 +48,7 @@
     padding: 0.5rem 0.75rem;
     font-size: 0.9rem;
   }
+
   .fc .fc-button:hover {
     background-color: #3e3e3e;
   }
@@ -86,6 +89,7 @@
     border-radius: 4px;
     cursor: pointer;
   }
+
   .checkin-button:disabled {
     opacity: 0.6;
     cursor: default;
@@ -128,6 +132,7 @@
     cursor: pointer;
     margin-left: 0.5rem;
   }
+
   .notification-content button:hover {
     color: #fcd3de;
   }
@@ -334,20 +339,20 @@
 {% endblock %}
 
 {% block dashboard %}
-  <div id="notifications" class="notifications-container"></div>
+<div id="notifications" class="notifications-container"></div>
 
-  <div class="calendar-container" id="calendar-container">
-    <h1>Welcome, {{ user.username }}!</h1>
-    <div id="calendar"></div>
-    <button onclick="checkInToday()" class="checkin-button">
-      Check In Today
-    </button>
-  </div>
+<div class="calendar-container" id="calendar-container">
+  <h1>Welcome, {{ user.username }}!</h1>
+  <div id="calendar"></div>
+  <button onclick="checkInToday()" class="checkin-button">
+    Check In Today
+  </button>
+</div>
 
-  {# profile #}
-  <div id="profile">
+{# profile #}
+<div id="profile">
   <h2>My Profile</h2>
-  
+
   <!-- Badges -->
   <section>
     <h3>My Badges ({{ user_badges|length }})</h3>
@@ -367,10 +372,10 @@
     {% else %}
     <p>No badges earned yet. Keep earning points to unlock badges!</p>
     {% endif %}
-    
+
     <!-- Next Badge Progress -->
     {% set next_badge = (all_badge_info | selectattr('points', 'gt', user.points) | first) %}
-    
+
     {% if next_badge %}
     <div class="next-badge">
       <h4>Next Badge: {{ next_badge.emoji }} {{ next_badge.name }}</h4>
@@ -382,7 +387,7 @@
     </div>
     {% endif %}
   </section>
-  
+
   <!-- Watchlist -->
   <section>
     <h3>Watchlist ({{ stats.watchlist_count }})</h3>
@@ -399,10 +404,10 @@
     <p>You haven't added any companies yet.</p>
     {% endif %}
   </section>
-  </div>
+</div>
 
-  {# application logs #}
-  <div id="app-logs">
+{# application logs #}
+<div id="app-logs">
   <!-- Application Logs -->
   <section style="margin-top: 2rem">
     <h3>Application Logs ({{ stats.application_count }})</h3>
@@ -431,10 +436,10 @@
     <p>No applications logged yet.</p>
     {% endif %}
   </section>
-  </div>
+</div>
 
-  <!-- quick Stats -->
-  <div id="quick-stats">
+<!-- quick Stats -->
+<div id="quick-stats">
   <section style="margin-top: 2rem">
     <h3>Quick Stats</h3>
     <ul>
@@ -443,87 +448,82 @@
       <li>Points: {{stats.points}}</li>
     </ul>
   </section>
-  </div>
+</div>
 
-  {# reminders #}
-  <div id="reminders">
-    <section style="margin-top: 2rem">
-      <h3>Application Reminders</h3>
-      
-      <!-- Add New Reminder Form -->
-      <div class="reminder-form">
-        <h4>Add New Reminder</h4>
-        <form action="/add_reminder" method="post">
-          <div class="form-row">
-            <div class="form-group">
-              <label for="company">Company *</label>
-              <input type="text" name="company" id="company" required placeholder="e.g., Google">
-            </div>
-            <div class="form-group">
-              <label for="role">Role *</label>
-              <input type="text" name="role" id="role" required placeholder="e.g., Software Engineer Intern">
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="due_date">Application Deadline *</label>
-              <input type="date" name="due_date" id="due_date" required>
-            </div>
-            <div class="form-group" style="align-self: end;">
-              <button type="submit" class="form-submit">Add Reminder</button>
-            </div>
-          </div>
-        </form>
-      </div>
+{# reminders #}
+<div id="reminders">
+  <section style="margin-top: 2rem">
+    <h3>Application Reminders</h3>
 
-      <!-- Current Reminders -->
-      <div class="reminders-list">
-        <h4>My Reminders ({{ reminders|length }})</h4>
-        
-        {% if reminders %}
-          {% for reminder in reminders %}
-          <div class="reminder-item 
+    <!-- Add New Reminder Form -->
+    <div class="reminder-form">
+      <h4>Add New Reminder</h4>
+      <form action="/add_reminder" method="post">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="company">Company *</label>
+            <input type="text" name="company" id="company" required placeholder="e.g., Google">
+          </div>
+          <div class="form-group">
+            <label for="role">Role *</label>
+            <input type="text" name="role" id="role" required placeholder="e.g., Software Engineer Intern">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="due_date">Application Deadline *</label>
+            <input type="date" name="due_date" id="due_date" required>
+          </div>
+          <div class="form-group" style="align-self: end;">
+            <button type="submit" class="form-submit">Add Reminder</button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Current Reminders -->
+    <div class="reminders-list">
+      <h4>My Reminders ({{ reminders|length }})</h4>
+
+      {% if reminders %}
+      {% for reminder in reminders %}
+      <div class="reminder-item 
                       {% if reminder.due_date <= today %}overdue
                       {% elif reminder.due_date <= (today + timedelta(days=3)) %}due-soon
                       {% else %}upcoming{% endif %}">
-            
-            <div class="reminder-info">
-              <div class="reminder-company">{{ reminder.company }}</div>
-              <div class="reminder-role">{{ reminder.role }}</div>
-              <div class="reminder-date">{{ reminder.due_date.strftime("%Y-%m-%d") }}</div>
-              <div class="reminder-status 
+
+        <div class="reminder-info">
+          <div class="reminder-company">{{ reminder.company or "Unknown Company" }}</div>
+          <div class="reminder-role">{{ reminder.role or "Unknown Role" }}</div>
+
+          <div class="reminder-date">{{ reminder.due_date.strftime("%Y-%m-%d") }}</div>
+          <div class="reminder-status 
                           {% if reminder.due_date <= today %}overdue
                           {% elif reminder.due_date <= (today + timedelta(days=3)) %}due-soon
                           {% else %}upcoming{% endif %}">
-                {% if reminder.due_date <= today %}
-                  OVERDUE
-                {% elif reminder.due_date <= (today + timedelta(days=3)) %}
-                  DUE SOON
-                {% else %}
-                  Upcoming
-                {% endif %}
-              </div>
-            </div>
-            
-            <div class="reminder-action">
-              <form action="/complete_reminder" method="post">
-                <input type="hidden" name="reminder_id" value="{{ reminder.id }}">
-                <button type="submit" onclick="return confirm('Mark this reminder as complete?')">
-                  Complete
-                </button>
-              </form>
-            </div>
+            {% if reminder.due_date <= today %} OVERDUE {% elif reminder.due_date <=(today + timedelta(days=3)) %} DUE
+              SOON {% else %} Upcoming {% endif %} </div>
           </div>
-          {% endfor %}
+
+          <div class="reminder-action">
+            <form action="/complete_reminder" method="post">
+              <input type="hidden" name="reminder_id" value="{{ reminder.id }}">
+              <button type="submit" onclick="return confirm('Mark this reminder as complete?')">
+                Complete
+              </button>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
         {% else %}
-          <div style="text-align: center; padding: 2rem; color: #d3f3ee80;">
-            <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">📅 No reminders set yet</p>
-            <p style="font-size: 0.9rem;">Add a reminder above to track your application deadlines!</p>
-          </div>
+        <div style="text-align: center; padding: 2rem; color: #d3f3ee80;">
+          <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">📅 No reminders set yet</p>
+          <p style="font-size: 0.9rem;">Add a reminder above to track your application deadlines!</p>
+        </div>
         {% endif %}
       </div>
-    </section>
-  </div>
+  </section>
+</div>
 {% endblock %}
 
 {% block scripts %}
@@ -536,7 +536,7 @@
   async function checkNotifications() {
     try {
       const res = await fetch("/api/notifications", {
-      credentials: "include",
+        credentials: "include",
       });
       const data = await res.json();
       if (data.new_internships?.length) {
@@ -556,7 +556,7 @@
       console.log("Error checking notifications:", err);
     }
   }
-  
+
   function showNotifications(items) {
     const container = document.getElementById("notifications");
     items.forEach(item => {
@@ -580,17 +580,17 @@
     if (res.ok) {
       const data = await res.json();
       let alertMessage = `Check-in successful! You now have ${data.points} points.`;
-      
+
       if (data.new_badges && data.new_badges.length > 0) {
         const badgeNames = data.new_badges.map(badge => `${badge.emoji} ${badge.name}`).join(', ');
         alertMessage += `\n\n🎉 New badge(s) earned: ${badgeNames}!`;
       }
-      
+
       alert(alertMessage);
       document.querySelector("#quick-stats li:last-child").textContent = `Points: ${data.points}`;
 
       if (window.calendar) calendar.refetchEvents();
-      
+
       if (data.new_badges && data.new_badges.length > 0) {
         setTimeout(() => window.location.reload(), 2000);
       }
@@ -600,7 +600,7 @@
     }
   }
 
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function () {
     const calendarEl = document.getElementById("calendar");
     window.calendar = new FullCalendar.Calendar(calendarEl, {
       initialView: "dayGridMonth",
